@@ -356,7 +356,7 @@ svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-sel
 <body>
 
 <!-- Hidden HTML5 audio for iOS media-mode unlock -->
-<audio id="silent-audio" playsinline webkit-playsinline preload="auto" loop
+<audio id="silent-audio" playsinline webkit-playsinline preload="auto"
   src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjQ1LjEwMAAAAAAAAAAAAAAA//tQwAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg//////////////////////////////////8AAAAATGF2YzU4LjkxAAAAAAAAAAAAAAAAJAUHAAAAAAAAASDs90hvAAAAAAAAAAAAAAAAAAAA"></audio>
 
 <!-- On-screen debug panel (screenshot this to share audio state) -->
@@ -663,11 +663,33 @@ function unlockAudio() {
   }
 
   try {
-    // 1. Play hidden HTML5 silent audio — tells iOS this is a media app
-    const silentEl = document.getElementById('silent-audio');
-    if (silentEl) {
-      silentEl.volume = 0.01;
-      const p = silentEl.play();
+    // 1. Force iOS into "playback" audio session category.
+    //    By default Web Audio uses "ambient" which respects the mute switch
+    //    (no speaker output when mute is on). Playing a REAL audio file
+    //    (not silence!) through an HTML5 <audio> element at volume 1.0
+    //    tells iOS this is a media app → switches to playback category →
+    //    audio outputs through speakers even with mute switch on.
+    const audioEl = document.getElementById('silent-audio');
+    if (audioEl && !audioEl._patched) {
+      audioEl._patched = true;
+      // Generate a tiny 50ms WAV with actual audio (quiet 1kHz beep)
+      const sr = 44100, dur = 0.05, n = Math.floor(sr * dur);
+      const buf = new ArrayBuffer(44 + n * 2);
+      const v = new DataView(buf);
+      const ws = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+      ws(0,'RIFF'); v.setUint32(4, 36+n*2, true); ws(8,'WAVE');
+      ws(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+      v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true);
+      ws(36,'data'); v.setUint32(40,n*2,true);
+      for (let i = 0; i < n; i++) {
+        v.setInt16(44 + i*2, Math.sin(2*Math.PI*1000*i/sr) * 0.08 * 32767, true);
+      }
+      audioEl.src = URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+      audioEl.loop = false;
+    }
+    if (audioEl) {
+      audioEl.volume = 1.0; // MUST be 1.0 for iOS to register as media
+      const p = audioEl.play();
       if (p && p.catch) p.catch(() => {});
     }
 
