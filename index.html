@@ -392,6 +392,13 @@ svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-sel
       </div>
     </div>
     <div class="instrument-row">
+      <button class="inst" id="beep-test" style="--inst-color:#ff3333; --inst-shadow:#aa1111; --inst-text:#fff; width:44px;" aria-label="Beep Test">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 9v6h4l5 5V4L7 9H3z" fill="#fff"/>
+          <path d="M16 7.5a6 6 0 010 9M19 4.5a10 10 0 010 15" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="inst-name" style="color:#fff">Test</span>
+      </button>
       <div class="inst flute selected" data-instrument="shakuhachi" aria-label="Flute">
         <svg viewBox="0 0 24 24">
           <rect x="10" y="2" width="4" height="20" rx="2" fill="#7a4d00"/>
@@ -680,6 +687,7 @@ function unlockAudio() {
       masterGain = audioContext.createGain();
       masterGain.gain.value = 1.0;
       effectsBus = audioContext.createGain();
+      effectsBus.gain.value = 1.0; // explicit — iOS default might differ
 
       delayNode = audioContext.createDelay(2.0);
       delayNode.delayTime.value = 0.375;
@@ -960,6 +968,54 @@ const instruments = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════
+// DIAGNOSTIC BEEP — bypasses ALL synth + effects code, raw osc → dest
+// If this makes sound, the synth routing is the issue.
+// If this is also silent, it's an iOS audio output config problem.
+// ═══════════════════════════════════════════════════════════════════════
+document.getElementById('beep-test').addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  unlockAudio();
+  if (!audioContext) { updateDebug('BEEP: no ctx'); return; }
+  if (audioContext.state === 'suspended') audioContext.resume();
+  try {
+    const o = audioContext.createOscillator();
+    o.type = 'sine';
+    o.frequency.value = 440;
+    const g = audioContext.createGain();
+    g.gain.value = 0.5; // loud
+    o.connect(g);
+    g.connect(audioContext.destination); // DIRECT to speakers, no effectsBus
+    o.start();
+    o.stop(audioContext.currentTime + 0.5);
+    updateDebug('BEEP sent! sr:' + audioContext.sampleRate);
+  } catch(err) {
+    updateDebug('BEEP ERR: ' + err.message);
+  }
+}, { passive: false });
+
+document.getElementById('beep-test').addEventListener('click', (e) => {
+  e.preventDefault();
+  unlockAudio();
+  if (!audioContext) return;
+  if (audioContext.state === 'suspended') audioContext.resume();
+  try {
+    const o = audioContext.createOscillator();
+    o.type = 'sine';
+    o.frequency.value = 440;
+    const g = audioContext.createGain();
+    g.gain.value = 0.5;
+    o.connect(g);
+    g.connect(audioContext.destination);
+    o.start();
+    o.stop(audioContext.currentTime + 0.5);
+    updateDebug('BEEP(click) sr:' + audioContext.sampleRate);
+  } catch(err) {
+    updateDebug('BEEP ERR: ' + err.message);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════
 // DEBUG OVERLAY — shows real-time audio state on screen for iOS debugging
 // ═══════════════════════════════════════════════════════════════════════
 const debugPanel = document.getElementById('debug-panel');
@@ -971,8 +1027,10 @@ function updateDebug(msg) {
     'ctx:' + (audioContext ? audioContext.state : 'null'),
     'rdy:' + audioReady,
     't:' + (audioContext ? audioContext.currentTime.toFixed(1) : '-'),
-    'bus:' + (effectsBus ? 'Y' : 'N'),
+    'bus:' + (effectsBus ? effectsBus.gain.value.toFixed(1) : 'N'),
     'mst:' + (masterGain ? masterGain.gain.value.toFixed(1) : '-'),
+    'sr:' + (audioContext ? audioContext.sampleRate : '-'),
+    'ch:' + (audioContext ? audioContext.destination.channelCount : '-'),
     'alive:' + (keepAliveSource ? 'Y' : 'N'),
     'notes:' + activeNotes.size,
   ];
