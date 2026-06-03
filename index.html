@@ -104,30 +104,43 @@ body {
   line-height: 1.4;
 }
 
-/* ─── APP LAYOUT (3 rows) ────────────────────────────────────────────── */
+/* ─── APP LAYOUT (2 rows: top bar + main) ────────────────────────────── */
 .app {
   width: 100vw;
   height: 100vh;
   height: 100dvh;
   display: grid;
-  grid-template-rows: auto auto 1fr;
-  gap: clamp(6px, 1vh, 12px);
-  padding: clamp(8px, 1.4vh, 18px) clamp(10px, 1.5vw, 22px);
+  grid-template-rows: auto 1fr;
+  gap: clamp(4px, 0.8vh, 10px);
+  padding:
+    max(clamp(6px, 1vh, 14px), env(safe-area-inset-top))
+    max(clamp(8px, 1.4vw, 18px), env(safe-area-inset-right))
+    max(clamp(6px, 1vh, 14px), env(safe-area-inset-bottom))
+    max(clamp(8px, 1.4vw, 18px), env(safe-area-inset-left));
 }
 
-/* ─── TOP BAR: title + instrument row ───────────────────────────────── */
+/* ─── TOP BAR: title+welcome on left, labeled instruments on right ───── */
 .top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(8px, 2vw, 24px);
+  gap: clamp(8px, 1.5vw, 18px);
   flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 .app-title {
   font-family: 'Bagel Fat One', 'Fredoka', sans-serif;
   font-weight: 400;
-  font-size: clamp(22px, 3.6vw, 40px);
+  font-size: clamp(20px, 3.1vw, 36px);
   color: var(--title);
   line-height: 1;
   letter-spacing: 0.2px;
@@ -137,24 +150,41 @@ body {
     1px -1px 0 #fff,
     -1px 1px 0 #fff;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
+.welcome-text {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(10px, 1.2vw, 14px);
+  font-weight: 600;
+  color: #5a3a70;
+  line-height: 1.2;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.welcome-text strong {
+  font-weight: 700;
+  color: var(--title);
+}
+
+/* Instrument tiles with icon + label below */
 .instrument-row {
   display: flex;
-  gap: clamp(6px, 1vw, 12px);
-  align-items: center;
+  gap: clamp(5px, 0.8vw, 10px);
+  align-items: stretch;
+  flex-shrink: 0;
 }
-
 .instrument {
-  width: clamp(40px, 6vw, 56px);
-  height: clamp(40px, 6vw, 56px);
+  width: clamp(46px, 6.4vw, 64px);
   background: var(--inst-color);
   border: 3px solid #fff;
-  border-radius: clamp(10px, 1.4vw, 14px);
+  border-radius: clamp(11px, 1.5vw, 15px);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 2px;
+  padding: clamp(4px, 0.6vh, 7px) 2px;
   cursor: pointer;
   box-shadow: 0 4px 0 var(--inst-shadow);
   transition: transform 0.08s ease, box-shadow 0.08s ease;
@@ -169,44 +199,29 @@ body {
   box-shadow: 0 4px 0 var(--inst-shadow), 0 0 0 3px #ff8a3d;
 }
 .instrument svg {
-  width: 60%;
-  height: 60%;
+  width: clamp(22px, 2.8vw, 30px);
+  height: clamp(22px, 2.8vw, 30px);
 }
-
-.instrument.flute   { --inst-color: #ffd86b; --inst-shadow: #d4a82a; }
-.instrument.chimes  { --inst-color: #7fc4e0; --inst-shadow: #4a96b8; }
-.instrument.sitar   { --inst-color: #c89aff; --inst-shadow: #9466cc; }
-.instrument.cello   { --inst-color: #ff9bbf; --inst-shadow: #cc5e8a; }
-
-/* ─── WELCOME BANNER ────────────────────────────────────────────────── */
-.welcome {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.55);
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  border-radius: clamp(12px, 1.6vw, 18px);
-  padding: clamp(6px, 1vh, 12px) clamp(12px, 2vw, 22px);
-  flex-shrink: 0;
-}
-.welcome-text {
+.instrument-name {
   font-family: 'Fredoka', sans-serif;
-  font-size: clamp(11px, 1.45vw, 16px);
-  font-weight: 500;
-  color: var(--text-medium);
-  line-height: 1.35;
+  font-size: clamp(8px, 1vw, 11px);
+  font-weight: 600;
+  color: var(--inst-text);
   text-align: center;
-}
-.welcome-text strong {
-  font-weight: 700;
-  color: var(--title);
+  line-height: 1;
+  letter-spacing: 0.02em;
 }
 
-/* ─── MAIN ROW: rail | cell | rail ──────────────────────────────────── */
+.instrument.flute   { --inst-color: #ffd86b; --inst-shadow: #d4a82a; --inst-text: #5a3500; }
+.instrument.chimes  { --inst-color: #7fc4e0; --inst-shadow: #4a96b8; --inst-text: #1a4d66; }
+.instrument.sitar   { --inst-color: #c89aff; --inst-shadow: #9466cc; --inst-text: #4a2880; }
+.instrument.cello   { --inst-color: #ff9bbf; --inst-shadow: #cc5e8a; --inst-text: #7a1f3d; }
+
+/* ─── MAIN ROW: rail | cell-stage (no frame) | rail ──────────────────── */
 .main-row {
   display: grid;
-  grid-template-columns: minmax(118px, 14%) 1fr minmax(118px, 14%);
-  gap: clamp(8px, 1.2vw, 16px);
+  grid-template-columns: minmax(118px, 15%) 1fr minmax(118px, 15%);
+  gap: clamp(6px, 1vw, 14px);
   min-height: 0;
   min-width: 0;
 }
@@ -219,94 +234,86 @@ body {
   min-width: 0;
 }
 
-/* ─── ORGANELLE CARDS ───────────────────────────────────────────────── */
+/* ─── ORGANELLE CARDS — colorful filled chips ────────────────────────── */
 .card {
-  background: #fff;
-  border: 2.5px solid var(--c-border);
-  border-radius: clamp(10px, 1.4vw, 14px);
-  padding: clamp(5px, 0.9vh, 10px) clamp(6px, 0.9vw, 11px);
-  box-shadow: 0 3px 0 var(--c-shadow);
+  --lift: 0px;
+  background: var(--c-bright);
+  border: 3px solid #fff;
+  border-radius: clamp(11px, 1.5vw, 15px);
+  padding: clamp(5px, 0.9vh, 10px) clamp(7px, 1vw, 11px);
+  box-shadow: 0 4px 0 var(--c-shadow);
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: clamp(1px, 0.3vh, 4px);
   flex: 1;
   min-height: 0;
-  transition: background-color 0.14s ease, transform 0.12s ease, box-shadow 0.12s ease;
+  cursor: pointer;
+  transform: translateY(var(--lift));
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
-.card.flash {
-  background: var(--c-border);
-  transform: translateY(-1px) scale(1.03);
-  box-shadow: 0 4px 0 var(--c-shadow), 0 0 0 3px var(--c-border);
+
+/* Persistent state while audio for this organelle is playing */
+.card.playing {
+  --lift: -2px;
+  box-shadow: 0 6px 0 var(--c-shadow), 0 0 0 3px rgba(255,255,255,0.85);
+}
+
+/* Brief bounce on every tap (preserves --lift via calc) */
+@keyframes card-tap-bounce {
+  0%   { transform: translateY(var(--lift)) scale(1); }
+  40%  { transform: translateY(calc(var(--lift) - 4px)) scale(1.06); }
+  100% { transform: translateY(var(--lift)) scale(1); }
+}
+.card.tap {
+  animation: card-tap-bounce 0.18s ease-out;
 }
 
 .card-title {
   font-family: 'Fredoka', sans-serif;
-  font-size: clamp(11px, 1.45vw, 16px);
+  font-size: clamp(11px, 1.4vw, 15px);
   font-weight: 700;
-  color: var(--c-text);
+  color: #fff;
   line-height: 1;
-  transition: color 0.14s ease;
+  text-shadow: 0 1px 0 var(--c-shadow);
 }
-.card.flash .card-title { color: #fff; }
-
 .card-meta {
   font-family: 'Fredoka', sans-serif;
-  font-size: clamp(9px, 1.05vw, 12px);
-  font-weight: 500;
-  color: #9a8090;
+  font-size: clamp(8.5px, 1vw, 12px);
+  font-weight: 600;
+  color: rgba(255,255,255,0.92);
   letter-spacing: 0.02em;
-  transition: color 0.14s ease;
 }
-.card.flash .card-meta { color: rgba(255,255,255,0.88); }
-
 .card-desc {
   font-family: 'Fredoka', sans-serif;
-  font-size: clamp(9.5px, 1.2vw, 13px);
+  font-size: clamp(9px, 1.15vw, 12.5px);
   font-weight: 500;
-  color: var(--text-dark);
-  line-height: 1.25;
+  color: #fff;
+  line-height: 1.22;
   overflow-wrap: break-word;
   hyphens: auto;
-  transition: color 0.14s ease;
 }
-.card.flash .card-desc { color: #fff; }
 
-/* Per-organelle color variables on each card */
-.card[data-card="nucleus"]      { --c-border: #a78bfa; --c-shadow: #7466c8; --c-text: #6a3aa8; }
-.card[data-card="membrane"]     { --c-border: #ff6b9d; --c-shadow: #cc4878; --c-text: #b03868; }
-.card[data-card="ribosomes"]    { --c-border: #ffd23f; --c-shadow: #caa01a; --c-text: #8a6800; }
-.card[data-card="cytoplasm"]    { --c-border: #daa050; --c-shadow: #aa7030; --c-text: #8a5520; }
-.card[data-card="mitochondria"] { --c-border: #ff8c42; --c-shadow: #cc6620; --c-text: #b04a10; }
-.card[data-card="cytoskeleton"] { --c-border: #5ed463; --c-shadow: #3aa040; --c-text: #2a7a30; }
-.card[data-card="golgi"]        { --c-border: #ff9355; --c-shadow: #cc6028; --c-text: #b04810; }
-.card[data-card="lysosomes"]    { --c-border: #ff5fa8; --c-shadow: #cc3878; --c-text: #aa2860; }
+/* Per-organelle saturated palette */
+.card[data-card="nucleus"]      { --c-bright: #a78bfa; --c-shadow: #6b56b8; }
+.card[data-card="membrane"]     { --c-bright: #ff6b9d; --c-shadow: #c43d70; }
+.card[data-card="ribosomes"]    { --c-bright: #f5b820; --c-shadow: #b88a10; }
+.card[data-card="cytoplasm"]    { --c-bright: #d49044; --c-shadow: #a06620; }
+.card[data-card="mitochondria"] { --c-bright: #ff8c42; --c-shadow: #c4541a; }
+.card[data-card="cytoskeleton"] { --c-bright: #5ed463; --c-shadow: #2e9a35; }
+.card[data-card="golgi"]        { --c-bright: #ff7d3a; --c-shadow: #c44c10; }
+.card[data-card="lysosomes"]    { --c-bright: #ff5fa8; --c-shadow: #c43078; }
 
-/* When flashed, title color must contrast with the colored bg */
-.card[data-card="ribosomes"].flash .card-title    { color: #5a3500; }
-.card[data-card="cytoplasm"].flash .card-title    { color: #4a2d10; }
-.card[data-card="cytoskeleton"].flash .card-title { color: #1a4a1f; }
-
-/* ─── CELL PANEL ────────────────────────────────────────────────────── */
-.cell-panel {
-  background: #fff;
-  border: 4px solid #fff;
-  border-radius: clamp(16px, 2.4vw, 24px);
-  box-shadow: 0 4px 18px rgba(80, 50, 100, 0.12);
-  padding: clamp(8px, 1.2vw, 16px);
+/* ─── CELL STAGE — no white frame, cell floats on gradient ───────────── */
+.cell-stage {
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 0;
   min-height: 0;
-}
-.cell-square {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
 }
 .cell-svg {
   width: auto;
@@ -315,9 +322,10 @@ body {
   max-height: 100%;
   aspect-ratio: 1;
   display: block;
+  filter: drop-shadow(0 6px 18px rgba(80, 40, 100, 0.18));
 }
 
-/* Cell SVG hit zones (transparent overlay) */
+/* Cell SVG hit zones */
 .hitzone {
   fill: transparent;
   stroke: transparent;
@@ -325,24 +333,27 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Organelle visual feedback when audio is active */
+/* ─── ORGANELLE GLOW STATES ──────────────────────────────────────────── */
 .organelle {
-  transition: filter 0.15s ease, transform 0.15s ease;
+  transition: filter 0.18s ease;
   transform-origin: center;
+  transform-box: fill-box;
 }
-.organelle.active {
-  filter: brightness(1.18) drop-shadow(0 0 14px var(--glow, currentColor));
+/* Persistent strong glow while playing */
+.organelle.playing {
+  filter: brightness(1.2) drop-shadow(0 0 18px var(--glow, currentColor));
 }
-@keyframes glow-pulse {
-  0%, 100% { filter: brightness(1.15) drop-shadow(0 0 10px var(--glow, currentColor)); }
-  50%      { filter: brightness(1.28) drop-shadow(0 0 22px var(--glow, currentColor)); }
+/* Brief flash on each tap — overlays on .playing */
+.organelle.tap {
+  animation: organelle-tap-flash 0.22s ease-out;
 }
-.organelle.pulsing {
-  animation: glow-pulse 1.2s ease-in-out infinite;
+@keyframes organelle-tap-flash {
+  0%   { filter: brightness(1.5) drop-shadow(0 0 30px var(--glow, currentColor)); }
+  100% { filter: brightness(1.2) drop-shadow(0 0 18px var(--glow, currentColor)); }
 }
 
 /* No text selection */
-svg, .instrument, .card, .welcome, .app-title {
+svg, .instrument, .card, .brand, .welcome-text, .app-title {
   -webkit-user-select: none;
   user-select: none;
 }
@@ -365,9 +376,16 @@ svg, .instrument, .card, .welcome, .app-title {
 <!-- ─── APP ─────────────────────────────────────────────────────────── -->
 <div class="app">
 
-  <!-- TOP BAR: title + instrument row -->
+  <!-- TOP BAR: brand (title + welcome) on left, labeled instruments on right -->
   <div class="top-bar">
-    <div class="app-title">Cellaphone</div>
+
+    <div class="brand">
+      <div class="app-title">Cellaphone</div>
+      <div class="welcome-text">
+        <strong>Hello!</strong> I am a human cell. <strong>Tap any part of me to hear my song!</strong> ✨
+      </div>
+    </div>
+
     <div class="instrument-row">
       <div class="instrument flute selected" data-instrument="shakuhachi" aria-label="Flute">
         <svg viewBox="0 0 24 24">
@@ -377,6 +395,7 @@ svg, .instrument, .card, .welcome, .app-title {
           <circle cx="12" cy="15" r="0.9" fill="#ffd86b"/>
           <circle cx="12" cy="19" r="0.9" fill="#ffd86b"/>
         </svg>
+        <div class="instrument-name">Flute</div>
       </div>
       <div class="instrument chimes" data-instrument="chime" aria-label="Wind Chimes">
         <svg viewBox="0 0 24 24" fill="none" stroke="#1a4d66" stroke-width="2" stroke-linecap="round">
@@ -386,6 +405,7 @@ svg, .instrument, .card, .welcome, .app-title {
           <line x1="18" y1="3" x2="18" y2="12"/>
           <line x1="4" y1="3" x2="20" y2="3" stroke-width="2.5"/>
         </svg>
+        <div class="instrument-name">Chimes</div>
       </div>
       <div class="instrument sitar" data-instrument="sitar" aria-label="Sitar">
         <svg viewBox="0 0 24 24">
@@ -393,24 +413,19 @@ svg, .instrument, .card, .welcome, .app-title {
           <line x1="13" y1="13" x2="22" y2="3" stroke="#4a2880" stroke-width="2" stroke-linecap="round"/>
           <circle cx="22" cy="3" r="1.5" fill="#4a2880"/>
         </svg>
+        <div class="instrument-name">Sitar</div>
       </div>
       <div class="instrument cello" data-instrument="cello" aria-label="Cello">
         <svg viewBox="0 0 24 24">
           <path d="M12 2 Q9 8 9 14 Q9 20 12 22 Q15 20 15 14 Q15 8 12 2 Z" fill="#7a1f3d"/>
         </svg>
+        <div class="instrument-name">Cello</div>
       </div>
     </div>
+
   </div>
 
-  <!-- WELCOME BANNER -->
-  <div class="welcome">
-    <div class="welcome-text">
-      <strong>Hello!</strong> I am a human cell. I am very tiny, but I do a lot.
-      <strong>Tap any part of me to hear my song!</strong> ✨
-    </div>
-  </div>
-
-  <!-- MAIN ROW: left rail | cell | right rail -->
+  <!-- MAIN ROW: left rail | cell-stage (no frame) | right rail -->
   <div class="main-row">
 
     <!-- LEFT RAIL: 4 cards -->
@@ -437,95 +452,108 @@ svg, .instrument, .card, .welcome, .app-title {
       </div>
     </div>
 
-    <!-- CENTER: cell -->
-    <div class="cell-panel">
-      <div class="cell-square">
-        <svg class="cell-svg" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet">
+    <!-- CENTER: cell floats directly on background — no white card -->
+    <div class="cell-stage">
+      <svg class="cell-svg" viewBox="0 0 480 240" preserveAspectRatio="xMidYMid meet">
 
-          <!-- DECORATIVE LAYER (visual) -->
-          <g pointer-events="none">
+        <!-- DECORATIVE LAYER -->
+        <g pointer-events="none">
 
-            <!-- Cytoplasm fill -->
-            <ellipse id="dec-cytoplasm" class="organelle" style="--glow: #ffd770;" cx="120" cy="120" rx="108" ry="108" fill="#fff4d8"/>
+          <!-- Cytoplasm: rounded rectangle fill (the cell interior) -->
+          <rect id="dec-cytoplasm" class="organelle" style="--glow: #ffd770;"
+            x="8" y="8" width="464" height="224" rx="28" fill="#fff4d8"/>
 
-            <!-- Plasma membrane ring -->
-            <ellipse id="dec-membrane" class="organelle" style="--glow: #ff6b9d;" cx="120" cy="120" rx="108" ry="108" fill="none" stroke="#ff6b9d" stroke-width="7"/>
+          <!-- Plasma membrane: thick rounded-rect border -->
+          <rect id="dec-membrane" class="organelle" style="--glow: #ff6b9d;"
+            x="8" y="8" width="464" height="224" rx="28"
+            fill="none" stroke="#ff6b9d" stroke-width="14"/>
 
-            <!-- Nucleus -->
-            <g id="dec-nucleus" class="organelle" style="--glow: #a78bfa;">
-              <circle cx="78" cy="92" r="38" fill="#a78bfa" stroke="white" stroke-width="3"/>
-              <circle cx="68" cy="84" r="3.5" fill="#3a2860"/>
-              <circle cx="86" cy="84" r="3.5" fill="#3a2860"/>
-              <path d="M 70 100 Q 78 106 86 100" stroke="#3a2860" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-            </g>
-
-            <!-- Mitochondria (two beans) -->
-            <g id="dec-mitochondria" class="organelle" style="--glow: #ff8c42;">
-              <g transform="translate(178 56) rotate(22)">
-                <ellipse rx="22" ry="11" fill="#ff8c42" stroke="white" stroke-width="3"/>
-                <circle cx="-6" cy="-1" r="1.8" fill="#5a2900"/>
-                <circle cx="4" cy="-1" r="1.8" fill="#5a2900"/>
-                <path d="M -5 3.5 Q 0 5.5 5 3.5" stroke="#5a2900" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-              </g>
-              <g transform="translate(180 168) rotate(-18)">
-                <ellipse rx="20" ry="10" fill="#ff8c42" stroke="white" stroke-width="3"/>
-                <circle cx="-5" cy="-1" r="1.6" fill="#5a2900"/>
-                <circle cx="4" cy="-1" r="1.6" fill="#5a2900"/>
-              </g>
-            </g>
-
-            <!-- Cytoskeleton -->
-            <g id="dec-cytoskeleton" class="organelle" style="--glow: #5ed463;">
-              <line x1="160" y1="100" x2="200" y2="108" stroke="#5ed463" stroke-width="5" stroke-linecap="round"/>
-              <line x1="160" y1="115" x2="200" y2="123" stroke="#5ed463" stroke-width="5" stroke-linecap="round"/>
-              <line x1="160" y1="130" x2="200" y2="138" stroke="#5ed463" stroke-width="5" stroke-linecap="round"/>
-            </g>
-
-            <!-- Ribosomes -->
-            <g id="dec-ribosomes" class="organelle" style="--glow: #ffd23f;">
-              <circle cx="48" cy="156" r="6" fill="#ffd23f" stroke="white" stroke-width="2"/>
-              <circle cx="62" cy="166" r="6" fill="#ffd23f" stroke="white" stroke-width="2"/>
-              <circle cx="46" cy="178" r="6" fill="#ffd23f" stroke="white" stroke-width="2"/>
-              <circle cx="64" cy="188" r="6" fill="#ffd23f" stroke="white" stroke-width="2"/>
-              <circle cx="52" cy="200" r="6" fill="#ffd23f" stroke="white" stroke-width="2"/>
-              <circle cx="72" cy="200" r="6" fill="#ffd23f" stroke="white" stroke-width="2"/>
-            </g>
-
-            <!-- Golgi -->
-            <g id="dec-golgi" class="organelle" style="--glow: #ff9355;">
-              <ellipse cx="120" cy="188" rx="28" ry="6" fill="#ffb380" stroke="white" stroke-width="2.5"/>
-              <ellipse cx="120" cy="198" rx="26" ry="6" fill="#ff9355" stroke="white" stroke-width="2.5"/>
-              <ellipse cx="120" cy="208" rx="22" ry="6" fill="#ff7733" stroke="white" stroke-width="2.5"/>
-            </g>
-
-            <!-- Lysosomes -->
-            <g id="dec-lysosomes" class="organelle" style="--glow: #ff5fa8;">
-              <circle cx="166" cy="210" r="11" fill="#ff5fa8" stroke="white" stroke-width="2.5"/>
-              <circle cx="190" cy="200" r="8" fill="#ff5fa8" stroke="white" stroke-width="2.5"/>
-              <circle cx="200" cy="218" r="9" fill="#ff5fa8" stroke="white" stroke-width="2.5"/>
-              <circle cx="163" cy="206" r="2.5" fill="white"/>
-              <circle cx="188" cy="197" r="1.8" fill="white"/>
-            </g>
-
+          <!-- Nucleus (top-left, big, with face) -->
+          <g id="dec-nucleus" class="organelle" style="--glow: #a78bfa;">
+            <circle cx="85" cy="85" r="48" fill="#a78bfa" stroke="white" stroke-width="4"/>
+            <circle cx="72" cy="76" r="4" fill="#3a2860"/>
+            <circle cx="98" cy="76" r="4" fill="#3a2860"/>
+            <path d="M 75 96 Q 85 105 95 96" stroke="#3a2860" stroke-width="3" fill="none" stroke-linecap="round"/>
           </g>
 
-          <!-- HIT ZONES (transparent, on top, ordered for specificity) -->
-          <g>
-            <circle class="hitzone" cx="120" cy="120" r="100" data-organelle="cytoplasm"/>
-            <path class="hitzone" data-organelle="membrane" fill-rule="evenodd"
-              d="M 120 4 A 116 116 0 1 0 120 236 A 116 116 0 1 0 120 4 Z M 120 17 A 103 103 0 1 1 120 223 A 103 103 0 1 1 120 17 Z"/>
-            <circle class="hitzone" cx="78" cy="92" r="48" data-organelle="nucleus"/>
-            <ellipse class="hitzone" cx="178" cy="56" rx="30" ry="20" data-organelle="mitochondria"/>
-            <ellipse class="hitzone" cx="180" cy="168" rx="28" ry="18" data-organelle="mitochondria"/>
-            <rect class="hitzone" x="148" y="90" width="60" height="58" data-organelle="cytoskeleton"/>
-            <rect class="hitzone" x="32" y="142" width="58" height="78" data-organelle="ribosomes"/>
-            <ellipse class="hitzone" cx="120" cy="198" rx="38" ry="22" data-organelle="golgi"/>
-            <path class="hitzone" data-organelle="lysosomes"
-              d="M 150 188 L 215 188 L 220 230 L 148 230 Z"/>
+          <!-- Mitochondria (two big beans on the right, both with faces) -->
+          <g id="dec-mitochondria" class="organelle" style="--glow: #ff8c42;">
+            <g transform="translate(395 60) rotate(20)">
+              <ellipse rx="42" ry="18" fill="#ff8c42" stroke="white" stroke-width="4"/>
+              <circle cx="-12" cy="-2" r="2.8" fill="#5a2900"/>
+              <circle cx="8" cy="-2" r="2.8" fill="#5a2900"/>
+              <path d="M -9 5 Q 0 9 9 5" stroke="#5a2900" stroke-width="2" fill="none" stroke-linecap="round"/>
+            </g>
+            <g transform="translate(420 140) rotate(-15)">
+              <ellipse rx="38" ry="16" fill="#ff8c42" stroke="white" stroke-width="4"/>
+              <circle cx="-10" cy="-2" r="2.5" fill="#5a2900"/>
+              <circle cx="7" cy="-2" r="2.5" fill="#5a2900"/>
+            </g>
           </g>
 
-        </svg>
-      </div>
+          <!-- Cytoskeleton (top-middle, thick parallel green lines) -->
+          <g id="dec-cytoskeleton" class="organelle" style="--glow: #5ed463;">
+            <line x1="195" y1="72" x2="295" y2="82" stroke="#5ed463" stroke-width="9" stroke-linecap="round"/>
+            <line x1="195" y1="100" x2="295" y2="110" stroke="#5ed463" stroke-width="9" stroke-linecap="round"/>
+            <line x1="195" y1="128" x2="295" y2="138" stroke="#5ed463" stroke-width="9" stroke-linecap="round"/>
+          </g>
+
+          <!-- Ribosomes (bottom-left, big yellow dot cluster) -->
+          <g id="dec-ribosomes" class="organelle" style="--glow: #ffd23f;">
+            <circle cx="40" cy="155" r="8" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+            <circle cx="65" cy="168" r="8" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+            <circle cx="45" cy="185" r="8" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+            <circle cx="85" cy="178" r="8" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+            <circle cx="105" cy="195" r="8" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+            <circle cx="60" cy="200" r="8" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+            <circle cx="85" cy="210" r="8" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+            <circle cx="30" cy="200" r="8" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+          </g>
+
+          <!-- Golgi (bottom-center, pancake stack) -->
+          <g id="dec-golgi" class="organelle" style="--glow: #ff7d3a;">
+            <ellipse cx="200" cy="175" rx="42" ry="9" fill="#ffb380" stroke="white" stroke-width="3"/>
+            <ellipse cx="200" cy="190" rx="38" ry="9" fill="#ff9355" stroke="white" stroke-width="3"/>
+            <ellipse cx="200" cy="205" rx="34" ry="9" fill="#ff7733" stroke="white" stroke-width="3"/>
+          </g>
+
+          <!-- Lysosomes (bottom-center-right, pink bubbles with sparkles) -->
+          <g id="dec-lysosomes" class="organelle" style="--glow: #ff5fa8;">
+            <circle cx="370" cy="200" r="15" fill="#ff5fa8" stroke="white" stroke-width="3"/>
+            <circle cx="390" cy="178" r="10" fill="#ff5fa8" stroke="white" stroke-width="3"/>
+            <circle cx="355" cy="190" r="9" fill="#ff5fa8" stroke="white" stroke-width="3"/>
+            <circle cx="366" cy="196" r="3" fill="white"/>
+            <circle cx="388" cy="175" r="2.5" fill="white"/>
+          </g>
+
+        </g>
+
+        <!-- HIT ZONES (z-ordered: membrane bottom, cytoplasm above, organelles top) -->
+        <g>
+          <!-- Membrane: full outer rounded rect — covered by cytoplasm in the middle -->
+          <rect class="hitzone" data-organelle="membrane"
+            x="4" y="4" width="472" height="232" rx="32"/>
+
+          <!-- Cytoplasm: inner rounded rect — sits on top of membrane in middle area -->
+          <rect class="hitzone" data-organelle="cytoplasm"
+            x="28" y="28" width="424" height="184" rx="20"/>
+
+          <!-- Specific organelles (on top of cytoplasm) — generous tap radii for kid fingers -->
+          <circle class="hitzone" cx="85" cy="85" r="60" data-organelle="nucleus"/>
+
+          <ellipse class="hitzone" cx="395" cy="60" rx="52" ry="30" data-organelle="mitochondria"/>
+          <ellipse class="hitzone" cx="420" cy="140" rx="48" ry="28" data-organelle="mitochondria"/>
+
+          <rect class="hitzone" x="180" y="55" width="130" height="95" data-organelle="cytoskeleton"/>
+
+          <rect class="hitzone" x="18" y="140" width="115" height="88" data-organelle="ribosomes"/>
+
+          <ellipse class="hitzone" cx="200" cy="190" rx="58" ry="32" data-organelle="golgi"/>
+
+          <rect class="hitzone" x="338" y="170" width="72" height="58" data-organelle="lysosomes"/>
+        </g>
+
+      </svg>
     </div>
 
     <!-- RIGHT RAIL: 4 cards -->
@@ -595,45 +623,8 @@ function createReverbImpulse() {
   return imp;
 }
 
-function initAudio() {
-  if (audioContext) return;
-  audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-  masterGain = audioContext.createGain();
-  masterGain.gain.value = 0.65;
-  effectsBus = audioContext.createGain();
-
-  // Reverb: fixed 33% wet
-  reverbConvolver = audioContext.createConvolver();
-  reverbConvolver.buffer = createReverbImpulse();
-  reverbWet = audioContext.createGain();
-  reverbDry = audioContext.createGain();
-  reverbWet.gain.value = 0.33;
-  reverbDry.gain.value = 1.0;
-
-  // Echo: fixed 20%
-  delayNode = audioContext.createDelay(2.0);
-  delayNode.delayTime.value = 0.375;
-  delayFeedback = audioContext.createGain();
-  delayFeedback.gain.value = 0.20 * 0.6; // 0.12
-  delayGain = audioContext.createGain();
-  delayGain.gain.value = 0.20 * 0.5; // 0.10
-
-  // Wire chain
-  effectsBus.connect(reverbConvolver);
-  reverbConvolver.connect(reverbWet);
-  reverbWet.connect(masterGain);
-  effectsBus.connect(reverbDry);
-  reverbDry.connect(masterGain);
-
-  effectsBus.connect(delayNode);
-  delayNode.connect(delayFeedback);
-  delayFeedback.connect(delayNode);
-  delayNode.connect(delayGain);
-  delayGain.connect(masterGain);
-
-  masterGain.connect(audioContext.destination);
-}
+// (Audio graph setup now lives inside unlockAudioNow() so it runs
+// synchronously inside the first user gesture — required for iOS Safari.)
 
 // ─── INSTRUMENT SYNTHS (ported from Lambdoma Studio V108) ───────────────
 const instruments = {
@@ -862,17 +853,16 @@ const instruments = {
 // ─── PLAY / STOP NOTE — V108-style piano behavior ────────────────────────
 // Each tap creates a new note instance keyed by unique noteId.
 // Multi-touch and rapid retrigger both produce overlapping fresh attacks.
-// Cell organelle glows while ≥1 note for that organelle is sounding.
-// Side card flashes briefly on every tap regardless of audio duration.
+// Organelle + side card stay in PLAYING state while ≥1 note is sounding.
+// Both also get a brief TAP flash on every tap regardless of audio duration.
 
 let noteIdCounter = 0;
-const pointerToNoteId = new Map();           // pointerId -> noteId
 const noteOrganelle = new Map();             // noteId -> organelle name
 const organelleActiveCount = new Map();      // organelle -> count of live notes
-const cardFlashTimers = new Map();           // organelle -> setTimeout id
+const tapTimers = new Map();                 // "organelle-card"|"organelle-dec" -> setTimeout id
 
 function playNote(organelle, noteId) {
-  initAudio();
+  if (!audioContext) return; // not yet unlocked
   if (audioContext.state === 'suspended') audioContext.resume();
 
   const info = ORGANELLES[organelle];
@@ -886,12 +876,12 @@ function playNote(organelle, noteId) {
   activeNotes.set(noteId, result);
   noteOrganelle.set(noteId, organelle);
 
-  // Increment count and add cell glow if this is the first note for the organelle
+  // Add persistent PLAYING state when first note for this organelle starts
   const prevCount = organelleActiveCount.get(organelle) || 0;
   organelleActiveCount.set(organelle, prevCount + 1);
   if (prevCount === 0) {
-    const dec = document.getElementById('dec-' + organelle);
-    if (dec) dec.classList.add('active', 'pulsing');
+    document.getElementById('dec-' + organelle)?.classList.add('playing');
+    document.querySelector(`.card[data-card="${organelle}"]`)?.classList.add('playing');
   }
 }
 
@@ -922,7 +912,6 @@ function stopNote(noteId) {
       nodes.forEach(n => { try { n.disconnect(); } catch(e) {} });
     }, (fadeTime + 0.15) * 1000);
   } else {
-    // Percussive — natural decay schedules its own oscillator stops
     setTimeout(() => {
       try { gainNode.disconnect(); } catch(e) {}
       nodes.forEach(n => { try { n.disconnect(); } catch(e) {} });
@@ -932,83 +921,204 @@ function stopNote(noteId) {
   activeNotes.delete(noteId);
   noteOrganelle.delete(noteId);
 
-  // Decrement count; remove cell glow only when last note for organelle stops
   if (organelle) {
     const newCount = (organelleActiveCount.get(organelle) || 1) - 1;
     organelleActiveCount.set(organelle, Math.max(newCount, 0));
     if (newCount <= 0) {
-      const dec = document.getElementById('dec-' + organelle);
-      if (dec) dec.classList.remove('active', 'pulsing');
+      document.getElementById('dec-' + organelle)?.classList.remove('playing');
+      document.querySelector(`.card[data-card="${organelle}"]`)?.classList.remove('playing');
     }
   }
 }
 
-// ─── CARD FLASH ──────────────────────────────────────────────────────────
-function flashCard(organelle) {
+// ─── TAP FLASH — brief feedback animation on every press ────────────────
+function flashTap(organelle) {
+  // Flash organelle in cell
+  const dec = document.getElementById('dec-' + organelle);
+  if (dec) {
+    dec.classList.remove('tap');
+    void dec.offsetWidth; // force reflow to restart animation
+    dec.classList.add('tap');
+    const decKey = 'dec-' + organelle;
+    if (tapTimers.has(decKey)) clearTimeout(tapTimers.get(decKey));
+    tapTimers.set(decKey, setTimeout(() => {
+      dec.classList.remove('tap');
+      tapTimers.delete(decKey);
+    }, 220));
+  }
+  // Flash side card
   const card = document.querySelector(`.card[data-card="${organelle}"]`);
-  if (!card) return;
-  card.classList.add('flash');
-  if (cardFlashTimers.has(organelle)) clearTimeout(cardFlashTimers.get(organelle));
-  cardFlashTimers.set(organelle, setTimeout(() => {
-    card.classList.remove('flash');
-    cardFlashTimers.delete(organelle);
-  }, 280));
+  if (card) {
+    card.classList.remove('tap');
+    void card.offsetWidth;
+    card.classList.add('tap');
+    const cardKey = 'card-' + organelle;
+    if (tapTimers.has(cardKey)) clearTimeout(tapTimers.get(cardKey));
+    tapTimers.set(cardKey, setTimeout(() => {
+      card.classList.remove('tap');
+      tapTimers.delete(cardKey);
+    }, 200));
+  }
 }
 
-// ─── POINTER EVENTS ON HIT ZONES ─────────────────────────────────────────
-document.querySelectorAll('.hitzone').forEach(hz => {
-  const organelle = hz.dataset.organelle;
+// ─── iOS AUDIO UNLOCK — must run synchronously inside user gesture ──────
+let audioReady = false;
+function unlockAudioNow() {
+  if (audioReady) return;
+  try {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    masterGain = audioContext.createGain();
+    masterGain.gain.value = 0.65;
+    effectsBus = audioContext.createGain();
+    reverbConvolver = audioContext.createConvolver();
+    reverbConvolver.buffer = createReverbImpulse();
+    reverbWet = audioContext.createGain();
+    reverbDry = audioContext.createGain();
+    reverbWet.gain.value = 0.33;
+    reverbDry.gain.value = 1.0;
+    delayNode = audioContext.createDelay(2.0);
+    delayNode.delayTime.value = 0.375;
+    delayFeedback = audioContext.createGain();
+    delayFeedback.gain.value = 0.20 * 0.6;
+    delayGain = audioContext.createGain();
+    delayGain.gain.value = 0.20 * 0.5;
+    effectsBus.connect(reverbConvolver);
+    reverbConvolver.connect(reverbWet);
+    reverbWet.connect(masterGain);
+    effectsBus.connect(reverbDry);
+    reverbDry.connect(masterGain);
+    effectsBus.connect(delayNode);
+    delayNode.connect(delayFeedback);
+    delayFeedback.connect(delayNode);
+    delayNode.connect(delayGain);
+    delayGain.connect(masterGain);
+    masterGain.connect(audioContext.destination);
 
-  hz.addEventListener('pointerdown', e => {
-    e.preventDefault();
-    try { hz.setPointerCapture(e.pointerId); } catch(_) {}
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+    // Play a silent 1-sample buffer to truly "warm up" iOS Web Audio
+    const buf = audioContext.createBuffer(1, 1, 22050);
+    const src = audioContext.createBufferSource();
+    src.buffer = buf;
+    src.connect(audioContext.destination);
+    src.start(0);
+
+    audioReady = true;
+  } catch(e) {
+    console.error('Audio unlock failed:', e);
+  }
+}
+// Attach to multiple early events so the FIRST user gesture unlocks audio
+['touchstart', 'touchend', 'mousedown', 'click'].forEach(evt => {
+  document.addEventListener(evt, unlockAudioNow, { capture: true, passive: true });
+});
+
+// ─── HIT-ZONE EVENT DELEGATION — touch first (iOS reliable), mouse fallback ──
+// We use event delegation on the SVG and document.elementFromPoint to find
+// which hitzone (and therefore which organelle) the touch is on.
+const cellSvg = document.querySelector('.cell-svg');
+
+function organelleAtPoint(x, y) {
+  const el = document.elementFromPoint(x, y);
+  if (!el) return null;
+  // Either the hit zone itself or a card may be at this point
+  return el.dataset?.organelle || el.closest('[data-organelle]')?.dataset?.organelle || null;
+}
+
+const touchNotes = new Map(); // touch.identifier -> { noteId, organelle }
+
+cellSvg.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  unlockAudioNow();
+  Array.from(e.changedTouches).forEach(t => {
+    const organelle = organelleAtPoint(t.clientX, t.clientY);
+    if (!organelle) return;
     const noteId = ++noteIdCounter;
-    pointerToNoteId.set(e.pointerId, noteId);
+    touchNotes.set(t.identifier, { noteId, organelle });
     playNote(organelle, noteId);
-    flashCard(organelle);
+    flashTap(organelle);
   });
+}, { passive: false });
 
-  hz.addEventListener('pointerup', e => {
-    try { hz.releasePointerCapture(e.pointerId); } catch(_) {}
-    const noteId = pointerToNoteId.get(e.pointerId);
-    if (noteId !== undefined) {
-      stopNote(noteId);
-      pointerToNoteId.delete(e.pointerId);
+function endTouches(e) {
+  Array.from(e.changedTouches).forEach(t => {
+    const data = touchNotes.get(t.identifier);
+    if (data) {
+      stopNote(data.noteId);
+      touchNotes.delete(t.identifier);
     }
   });
+}
+cellSvg.addEventListener('touchend',    (e) => { e.preventDefault(); endTouches(e); }, { passive: false });
+cellSvg.addEventListener('touchcancel', endTouches);
 
-  hz.addEventListener('pointercancel', e => {
-    try { hz.releasePointerCapture(e.pointerId); } catch(_) {}
-    const noteId = pointerToNoteId.get(e.pointerId);
-    if (noteId !== undefined) {
-      stopNote(noteId);
-      pointerToNoteId.delete(e.pointerId);
-    }
+// Mouse fallback (desktop)
+let mouseNote = null;
+cellSvg.addEventListener('mousedown', (e) => {
+  unlockAudioNow();
+  const organelle = organelleAtPoint(e.clientX, e.clientY);
+  if (!organelle) return;
+  const noteId = ++noteIdCounter;
+  mouseNote = { noteId, organelle };
+  playNote(organelle, noteId);
+  flashTap(organelle);
+});
+window.addEventListener('mouseup', () => {
+  if (mouseNote) {
+    stopNote(mouseNote.noteId);
+    mouseNote = null;
+  }
+});
+
+// ─── CARD-TAP-TO-PLAY — kids can also play by tapping the side cards ───
+document.querySelectorAll('.card').forEach(card => {
+  const organelle = card.dataset.card;
+
+  card.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    unlockAudioNow();
+    Array.from(e.changedTouches).forEach(t => {
+      const noteId = ++noteIdCounter;
+      touchNotes.set(t.identifier, { noteId, organelle });
+      playNote(organelle, noteId);
+      flashTap(organelle);
+    });
+  }, { passive: false });
+
+  card.addEventListener('touchend',    (e) => { e.preventDefault(); endTouches(e); }, { passive: false });
+  card.addEventListener('touchcancel', endTouches);
+
+  card.addEventListener('mousedown', () => {
+    unlockAudioNow();
+    const noteId = ++noteIdCounter;
+    mouseNote = { noteId, organelle };
+    playNote(organelle, noteId);
+    flashTap(organelle);
   });
 });
 
-// Prevent right-click / long-press context menu on cell
-document.querySelector('.cell-svg').addEventListener('contextmenu', e => e.preventDefault());
+// Prevent context menu on cell + cards
+cellSvg.addEventListener('contextmenu', e => e.preventDefault());
+document.querySelectorAll('.card').forEach(c =>
+  c.addEventListener('contextmenu', e => e.preventDefault())
+);
 
 // ─── INSTRUMENT SELECTION ────────────────────────────────────────────────
 document.querySelectorAll('.instrument').forEach(btn => {
   btn.addEventListener('click', () => {
+    unlockAudioNow();
     document.querySelectorAll('.instrument').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     currentInstrument = btn.dataset.instrument;
     // Stop any active notes when switching instrument
     Array.from(activeNotes.keys()).forEach(id => stopNote(id));
-    pointerToNoteId.clear();
+    touchNotes.clear();
+    mouseNote = null;
   });
 });
-
-// ─── iOS AUDIO UNLOCK ────────────────────────────────────────────────────
-function unlockAudio() {
-  if (!audioContext) initAudio();
-  if (audioContext && audioContext.state === 'suspended') audioContext.resume();
-}
-document.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
-document.addEventListener('click', unlockAudio, { once: true, passive: true });
 
 // ─── PREVENT BOUNCE / ZOOM ───────────────────────────────────────────────
 document.addEventListener('gesturestart', e => e.preventDefault());
