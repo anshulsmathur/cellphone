@@ -302,96 +302,36 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ─── ORGANELLE GLOW — hardcoded per-color triple-shadow for visibility ─── */
-.organelle { transition: filter 0.15s ease; }
-
-/* Per-organelle glow when audio is playing */
-[data-organelle-dec="nucleus"].playing {
-  filter:
-    drop-shadow(0 0 6px #fff)
-    drop-shadow(0 0 14px #a78bfa)
-    drop-shadow(0 0 26px #a78bfa);
-}
-[data-organelle-dec="mitochondria"].playing {
-  filter:
-    drop-shadow(0 0 6px #fff)
-    drop-shadow(0 0 14px #ff8c42)
-    drop-shadow(0 0 26px #ff8c42);
-}
-[data-organelle-dec="cytoskeleton"].playing {
-  filter:
-    drop-shadow(0 0 6px #fff)
-    drop-shadow(0 0 14px #5ed463)
-    drop-shadow(0 0 26px #5ed463);
-}
-[data-organelle-dec="ribosomes"].playing {
-  filter:
-    drop-shadow(0 0 6px #fff)
-    drop-shadow(0 0 14px #ffd23f)
-    drop-shadow(0 0 26px #ffd23f);
-}
-[data-organelle-dec="golgi"].playing {
-  filter:
-    drop-shadow(0 0 6px #fff)
-    drop-shadow(0 0 14px #ff7d3a)
-    drop-shadow(0 0 26px #ff7d3a);
-}
-[data-organelle-dec="lysosomes"].playing {
-  filter:
-    drop-shadow(0 0 6px #fff)
-    drop-shadow(0 0 14px #ff5fa8)
-    drop-shadow(0 0 26px #ff5fa8);
-}
-[data-organelle-dec="membrane"].playing {
-  filter:
-    drop-shadow(0 0 8px #fff)
-    drop-shadow(0 0 16px #ff6b9d)
-    drop-shadow(0 0 28px #ff6b9d);
-}
-[data-organelle-dec="cytoplasm"].playing > rect {
-  fill: #fff0c0;
-}
-[data-organelle-dec="cytoplasm"].playing {
-  filter: drop-shadow(0 0 12px #ffd770);
+/* ─── ORGANELLE GLOW — SVG halo elements (iOS-safe, no CSS filter on groups) ─ */
+/* Halos are separate SVG shapes positioned behind each organelle with an
+   SVG <filter> for Gaussian blur. CSS just toggles opacity 0→1.
+   This works on iOS Safari where CSS drop-shadow on SVG groups doesn't. */
+.organelle { transition: transform 0.1s ease; transform-box: fill-box; transform-origin: center; }
+.organelle.playing { transform: scale(0.96); } /* subtle press-in like a button */
+.organelle.tap { animation: org-pop 0.22s ease-out; }
+@keyframes org-pop {
+  0%   { transform: scale(0.90); }
+  50%  { transform: scale(1.04); }
+  100% { transform: scale(0.96); }
 }
 
-/* Brief brighter flash on every tap — overlays on .playing */
-@keyframes tap-flash-purple {
-  0%   { filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 22px #a78bfa) drop-shadow(0 0 40px #a78bfa); }
-  100% { filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 14px #a78bfa) drop-shadow(0 0 26px #a78bfa); }
-}
-@keyframes tap-flash-orange {
-  0%   { filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 22px #ff8c42) drop-shadow(0 0 40px #ff8c42); }
-  100% { filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 14px #ff8c42) drop-shadow(0 0 26px #ff8c42); }
-}
-@keyframes tap-flash-green {
-  0%   { filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 22px #5ed463) drop-shadow(0 0 40px #5ed463); }
-  100% { filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 14px #5ed463) drop-shadow(0 0 26px #5ed463); }
-}
-@keyframes tap-flash-yellow {
-  0%   { filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 22px #ffd23f) drop-shadow(0 0 40px #ffd23f); }
-  100% { filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 14px #ffd23f) drop-shadow(0 0 26px #ffd23f); }
-}
-@keyframes tap-flash-orange2 {
-  0%   { filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 22px #ff7d3a) drop-shadow(0 0 40px #ff7d3a); }
-  100% { filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 14px #ff7d3a) drop-shadow(0 0 26px #ff7d3a); }
-}
-@keyframes tap-flash-pink {
-  0%   { filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 22px #ff5fa8) drop-shadow(0 0 40px #ff5fa8); }
-  100% { filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 14px #ff5fa8) drop-shadow(0 0 26px #ff5fa8); }
-}
-@keyframes tap-flash-pink2 {
-  0%   { filter: drop-shadow(0 0 12px #fff) drop-shadow(0 0 26px #ff6b9d) drop-shadow(0 0 44px #ff6b9d); }
-  100% { filter: drop-shadow(0 0 8px #fff) drop-shadow(0 0 16px #ff6b9d) drop-shadow(0 0 28px #ff6b9d); }
+.halo { opacity: 0; transition: opacity 0.18s ease; }
+.halo.playing { opacity: 0.85; }
+.halo.tap { animation: halo-flash 0.28s ease-out; }
+@keyframes halo-flash {
+  0%   { opacity: 1; }
+  100% { opacity: 0.85; }
 }
 
-[data-organelle-dec="nucleus"].tap      { animation: tap-flash-purple  0.28s ease-out; }
-[data-organelle-dec="mitochondria"].tap { animation: tap-flash-orange  0.28s ease-out; }
-[data-organelle-dec="cytoskeleton"].tap { animation: tap-flash-green   0.28s ease-out; }
-[data-organelle-dec="ribosomes"].tap    { animation: tap-flash-yellow  0.28s ease-out; }
-[data-organelle-dec="golgi"].tap        { animation: tap-flash-orange2 0.28s ease-out; }
-[data-organelle-dec="lysosomes"].tap    { animation: tap-flash-pink    0.28s ease-out; }
-[data-organelle-dec="membrane"].tap     { animation: tap-flash-pink2   0.28s ease-out; }
+/* ─── CARD GLOW — box-shadow ring when playing ───────────────────────── */
+.card.playing {
+  --lift: -3px;
+  box-shadow:
+    0 8px 0 var(--c-shadow),
+    0 0 0 4px rgba(255,255,255,0.9),
+    0 0 14px var(--c-bright),
+    0 0 24px var(--c-bright);
+}
 
 /* No selection on UI elements */
 svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-select: none; user-select: none; }
@@ -500,6 +440,26 @@ svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-sel
     <!-- CELL -->
     <div class="cell-stage">
       <svg class="cell-svg" viewBox="0 0 480 240" preserveAspectRatio="xMidYMid meet">
+
+        <!-- SVG filter for the glow halos — iOS Safari renders this correctly -->
+        <defs>
+          <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="7" result="blur"/>
+          </filter>
+        </defs>
+
+        <!-- HALO LAYER — blurred shapes behind each organelle, toggled by opacity -->
+        <g pointer-events="none">
+          <rect class="halo" data-halo="cytoplasm" x="-8" y="-8" width="496" height="256" rx="36" fill="#ffd770" filter="url(#glow)"/>
+          <rect class="halo" data-halo="membrane" x="0" y="0" width="480" height="240" rx="32" fill="none" stroke="#ff6b9d" stroke-width="28" filter="url(#glow)"/>
+          <circle class="halo" data-halo="nucleus" cx="85" cy="85" r="58" fill="#a78bfa" filter="url(#glow)"/>
+          <ellipse class="halo" data-halo="mitochondria" cx="395" cy="60" rx="56" ry="30" fill="#ff8c42" filter="url(#glow)" transform="rotate(20 395 60)"/>
+          <ellipse class="halo" data-halo="mitochondria" cx="420" cy="140" rx="52" ry="28" fill="#ff8c42" filter="url(#glow)" transform="rotate(-15 420 140)"/>
+          <rect class="halo" data-halo="cytoskeleton" x="180" y="55" width="130" height="95" rx="22" fill="#5ed463" filter="url(#glow)"/>
+          <rect class="halo" data-halo="ribosomes" x="20" y="140" width="100" height="85" rx="22" fill="#ffd23f" filter="url(#glow)"/>
+          <ellipse class="halo" data-halo="golgi" cx="200" cy="190" rx="55" ry="30" fill="#ff7d3a" filter="url(#glow)"/>
+          <rect class="halo" data-halo="lysosomes" x="340" y="170" width="70" height="58" rx="18" fill="#ff5fa8" filter="url(#glow)"/>
+        </g>
 
         <!-- Cytoplasm (rounded rect fill) -->
         <g class="organelle" data-organelle-dec="cytoplasm">
@@ -664,7 +624,7 @@ function createReverbImpulse() {
 // silent keep-alive oscillator that runs forever (prevents iOS from
 // suspending the context when the page is idle).
 // ═══════════════════════════════════════════════════════════════════════
-function unlockAudio() {
+async function unlockAudio() {
   if (audioReady) {
     // Already unlocked, but iOS may have re-suspended — re-resume
     if (audioContext && audioContext.state === 'suspended') {
@@ -688,51 +648,64 @@ function unlockAudio() {
       audioContext = new Ctx();
     }
 
-    // 3. Build the audio graph (gain, reverb, echo) ONCE
+    // 3. Build the audio graph ONCE.
+    // NOTE: ConvolverNode is deliberately EXCLUDED — iOS Safari silently
+    // fails on createConvolver with generated impulse buffers, which
+    // blocks the entire signal chain and produces zero output.
+    // The dry signal goes directly through effectsBus → masterGain.
+    // Echo delay provides spatial depth instead of convolution reverb.
     if (!masterGain) {
       masterGain = audioContext.createGain();
-      masterGain.gain.value = 0.7;
+      masterGain.gain.value = 1.0; // full volume for phone speakers
       effectsBus = audioContext.createGain();
-
-      reverbConvolver = audioContext.createConvolver();
-      reverbConvolver.buffer = createReverbImpulse();
-      reverbWet = audioContext.createGain();
-      reverbDry = audioContext.createGain();
-      reverbWet.gain.value = 0.33;
-      reverbDry.gain.value = 1.0;
 
       delayNode = audioContext.createDelay(2.0);
       delayNode.delayTime.value = 0.375;
       delayFeedback = audioContext.createGain();
-      delayFeedback.gain.value = 0.12;
+      delayFeedback.gain.value = 0.15;
       delayGain = audioContext.createGain();
-      delayGain.gain.value = 0.10;
+      delayGain.gain.value = 0.12;
 
-      effectsBus.connect(reverbConvolver);
-      reverbConvolver.connect(reverbWet);
-      reverbWet.connect(masterGain);
-      effectsBus.connect(reverbDry);
-      reverbDry.connect(masterGain);
+      // Dry signal: effectsBus → masterGain → destination
+      effectsBus.connect(masterGain);
+
+      // Echo: effectsBus → delay → feedback loop → delayGain → masterGain
       effectsBus.connect(delayNode);
       delayNode.connect(delayFeedback);
       delayFeedback.connect(delayNode);
       delayNode.connect(delayGain);
       delayGain.connect(masterGain);
+
       masterGain.connect(audioContext.destination);
     }
 
-    // 4. Resume the context (returns promise but call is synchronous)
-    audioContext.resume().catch(() => {});
+    // 4. iOS 26 workaround: suspend THEN resume can fix stuck contexts
+    try {
+      await audioContext.suspend();
+      await audioContext.resume();
+    } catch(_) {
+      // fallback: just resume
+      audioContext.resume().catch(() => {});
+    }
 
-    // 5. Play a 1-sample silent buffer NOW — truly warms up iOS Web Audio
-    const buf = audioContext.createBuffer(1, 1, 22050);
-    const src = audioContext.createBufferSource();
-    src.buffer = buf;
-    src.connect(audioContext.destination);
-    src.start(0);
+    // 5. Play a SHORT TEST BEEP directly to destination — confirms audio
+    // path works. 100ms sine at 440Hz, very quiet (gain 0.05).
+    // If you can hear this tiny "tick" on splash tap, audio is working.
+    try {
+      const testOsc = audioContext.createOscillator();
+      testOsc.frequency.value = 440;
+      testOsc.type = 'sine';
+      const testGain = audioContext.createGain();
+      testGain.gain.value = 0.05;
+      testOsc.connect(testGain);
+      testGain.connect(audioContext.destination);
+      const t = audioContext.currentTime;
+      testOsc.start(t);
+      testOsc.stop(t + 0.1);
+    } catch(_) {}
 
     // 6. Start a permanent silent keep-alive source.
-    // Without this, iOS Safari will suspend the AudioContext after a
+    // Without this, iOS Safari suspends the AudioContext after a
     // few seconds of silence, breaking subsequent playNote() calls.
     if (!keepAliveSource) {
       const aliveBuf = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
@@ -1012,6 +985,7 @@ function playNote(organelle, noteId) {
   organelleActiveCount.set(organelle, prev + 1);
   if (prev === 0) {
     document.querySelectorAll(`[data-organelle-dec="${organelle}"]`).forEach(el => el.classList.add('playing'));
+    document.querySelectorAll(`[data-halo="${organelle}"]`).forEach(el => el.classList.add('playing'));
     document.querySelector(`.card[data-card="${organelle}"]`)?.classList.add('playing');
   }
 }
@@ -1057,23 +1031,37 @@ function stopNote(noteId) {
     organelleActiveCount.set(organelle, Math.max(newCount, 0));
     if (newCount <= 0) {
       document.querySelectorAll(`[data-organelle-dec="${organelle}"]`).forEach(el => el.classList.remove('playing'));
+      document.querySelectorAll(`[data-halo="${organelle}"]`).forEach(el => el.classList.remove('playing'));
       document.querySelector(`.card[data-card="${organelle}"]`)?.classList.remove('playing');
     }
   }
 }
 
 function flashTap(organelle) {
-  // Flash cell organelle
+  // Haptic feedback (Android only — iOS doesn't support navigator.vibrate)
+  if (navigator.vibrate) navigator.vibrate(12);
+
+  // Flash cell organelle (press animation)
   const decs = document.querySelectorAll(`[data-organelle-dec="${organelle}"]`);
   decs.forEach(dec => {
     dec.classList.remove('tap');
     void dec.getBoundingClientRect();
     dec.classList.add('tap');
   });
+
+  // Flash halo elements (glow burst)
+  const halos = document.querySelectorAll(`[data-halo="${organelle}"]`);
+  halos.forEach(h => {
+    h.classList.remove('tap');
+    void h.getBoundingClientRect();
+    h.classList.add('tap');
+  });
+
   const decKey = 'dec-' + organelle;
   if (tapTimers.has(decKey)) clearTimeout(tapTimers.get(decKey));
   tapTimers.set(decKey, setTimeout(() => {
     decs.forEach(dec => dec.classList.remove('tap'));
+    halos.forEach(h => h.classList.remove('tap'));
     tapTimers.delete(decKey);
   }, 300));
 
