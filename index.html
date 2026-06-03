@@ -303,25 +303,24 @@ body {
 }
 
 /* ─── ORGANELLE GLOW — SVG halo elements (iOS-safe, no CSS filter on groups) ─ */
-/* Halos are separate SVG shapes positioned behind each organelle with an
-   SVG <filter> for Gaussian blur. CSS just toggles opacity 0→1.
-   This works on iOS Safari where CSS drop-shadow on SVG groups doesn't. */
 .organelle { transition: transform 0.1s ease; transform-box: fill-box; transform-origin: center; }
-.organelle.playing { transform: scale(0.96); } /* subtle press-in like a button */
+.organelle.playing { transform: scale(0.96); }
 .organelle.tap { animation: org-pop 0.22s ease-out; }
 @keyframes org-pop {
   0%   { transform: scale(0.90); }
   50%  { transform: scale(1.04); }
   100% { transform: scale(0.96); }
 }
+/* Membrane + cytoplasm are huge rects — scale looks bad. Glow only. */
+[data-organelle-dec="membrane"].playing,
+[data-organelle-dec="cytoplasm"].playing { transform: none; }
+[data-organelle-dec="membrane"].tap,
+[data-organelle-dec="cytoplasm"].tap { animation: none; }
 
 .halo { opacity: 0; transition: opacity 0.18s ease; }
 .halo.playing { opacity: 0.85; }
 .halo.tap { animation: halo-flash 0.28s ease-out; }
-@keyframes halo-flash {
-  0%   { opacity: 1; }
-  100% { opacity: 0.85; }
-}
+@keyframes halo-flash { 0% { opacity: 1; } 100% { opacity: 0.85; } }
 
 /* ─── CARD GLOW — box-shadow ring when playing ───────────────────────── */
 .card.playing {
@@ -333,6 +332,23 @@ body {
     0 0 24px var(--c-bright);
 }
 
+/* ─── DEBUG OVERLAY — shows audio state, screenshot and share ────────── */
+#debug-panel {
+  position: fixed;
+  bottom: 4px; left: 4px;
+  background: rgba(0,0,0,0.82);
+  color: #0f0;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  z-index: 9999;
+  pointer-events: none;
+  max-width: 400px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
 /* No selection on UI elements */
 svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-select: none; user-select: none; }
 </style>
@@ -342,6 +358,9 @@ svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-sel
 <!-- Hidden HTML5 audio for iOS media-mode unlock -->
 <audio id="silent-audio" playsinline webkit-playsinline preload="auto" loop
   src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjQ1LjEwMAAAAAAAAAAAAAAA//tQwAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg4ODg//////////////////////////////////8AAAAATGF2YzU4LjkxAAAAAAAAAAAAAAAAJAUHAAAAAAAAASDs90hvAAAAAAAAAAAAAAAAAAAA"></audio>
+
+<!-- On-screen debug panel (screenshot this to share audio state) -->
+<div id="debug-panel">audio: waiting...</div>
 
 <!-- SPLASH SCREEN — first tap unlocks audio -->
 <div class="splash" id="splash">
@@ -624,11 +643,14 @@ function createReverbImpulse() {
 // silent keep-alive oscillator that runs forever (prevents iOS from
 // suspending the context when the page is idle).
 // ═══════════════════════════════════════════════════════════════════════
-async function unlockAudio() {
+// CRITICAL: This function is NOT async. iOS requires ALL audio operations
+// to happen synchronously within the user gesture handler. async/await
+// breaks the gesture chain — code after "await" runs in a microtask that
+// iOS no longer considers a user gesture, so audio gets blocked silently.
+function unlockAudio() {
   if (audioReady) {
-    // Already unlocked, but iOS may have re-suspended — re-resume
     if (audioContext && audioContext.state === 'suspended') {
-      audioContext.resume().catch(() => {});
+      audioContext.resume();
     }
     return;
   }
@@ -637,7 +659,7 @@ async function unlockAudio() {
     // 1. Play hidden HTML5 silent audio — tells iOS this is a media app
     const silentEl = document.getElementById('silent-audio');
     if (silentEl) {
-      silentEl.volume = 0;
+      silentEl.volume = 0.01;
       const p = silentEl.play();
       if (p && p.catch) p.catch(() => {});
     }
@@ -648,15 +670,15 @@ async function unlockAudio() {
       audioContext = new Ctx();
     }
 
-    // 3. Build the audio graph ONCE.
-    // NOTE: ConvolverNode is deliberately EXCLUDED — iOS Safari silently
-    // fails on createConvolver with generated impulse buffers, which
-    // blocks the entire signal chain and produces zero output.
-    // The dry signal goes directly through effectsBus → masterGain.
-    // Echo delay provides spatial depth instead of convolution reverb.
+    // 3. Resume SYNCHRONOUSLY — the call itself must happen in the gesture
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+
+    // 4. Build the audio graph ONCE
     if (!masterGain) {
       masterGain = audioContext.createGain();
-      masterGain.gain.value = 1.0; // full volume for phone speakers
+      masterGain.gain.value = 1.0;
       effectsBus = audioContext.createGain();
 
       delayNode = audioContext.createDelay(2.0);
@@ -666,63 +688,46 @@ async function unlockAudio() {
       delayGain = audioContext.createGain();
       delayGain.gain.value = 0.12;
 
-      // Dry signal: effectsBus → masterGain → destination
       effectsBus.connect(masterGain);
-
-      // Echo: effectsBus → delay → feedback loop → delayGain → masterGain
       effectsBus.connect(delayNode);
       delayNode.connect(delayFeedback);
       delayFeedback.connect(delayNode);
       delayNode.connect(delayGain);
       delayGain.connect(masterGain);
-
       masterGain.connect(audioContext.destination);
     }
 
-    // 4. iOS 26 workaround: suspend THEN resume can fix stuck contexts
-    try {
-      await audioContext.suspend();
-      await audioContext.resume();
-    } catch(_) {
-      // fallback: just resume
-      audioContext.resume().catch(() => {});
-    }
+    // 5. Play an AUDIBLE test beep directly to destination (0.3 gain, 150ms)
+    //    This confirms the audio path is alive. No effects chain involved.
+    const testOsc = audioContext.createOscillator();
+    testOsc.frequency.value = 440;
+    testOsc.type = 'sine';
+    const testGain = audioContext.createGain();
+    testGain.gain.value = 0.3;
+    testOsc.connect(testGain);
+    testGain.connect(audioContext.destination);
+    testOsc.start();
+    testOsc.stop(audioContext.currentTime + 0.15);
 
-    // 5. Play a SHORT TEST BEEP directly to destination — confirms audio
-    // path works. 100ms sine at 440Hz, very quiet (gain 0.05).
-    // If you can hear this tiny "tick" on splash tap, audio is working.
-    try {
-      const testOsc = audioContext.createOscillator();
-      testOsc.frequency.value = 440;
-      testOsc.type = 'sine';
-      const testGain = audioContext.createGain();
-      testGain.gain.value = 0.05;
-      testOsc.connect(testGain);
-      testGain.connect(audioContext.destination);
-      const t = audioContext.currentTime;
-      testOsc.start(t);
-      testOsc.stop(t + 0.1);
-    } catch(_) {}
-
-    // 6. Start a permanent silent keep-alive source.
-    // Without this, iOS Safari suspends the AudioContext after a
-    // few seconds of silence, breaking subsequent playNote() calls.
+    // 6. Keep-alive silent source to prevent iOS from re-suspending
     if (!keepAliveSource) {
       const aliveBuf = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
       const aliveSrc = audioContext.createBufferSource();
       aliveSrc.buffer = aliveBuf;
       aliveSrc.loop = true;
       const aliveGain = audioContext.createGain();
-      aliveGain.gain.value = 0; // truly silent
+      aliveGain.gain.value = 0;
       aliveSrc.connect(aliveGain);
       aliveGain.connect(audioContext.destination);
-      aliveSrc.start(0);
+      aliveSrc.start();
       keepAliveSource = aliveSrc;
     }
 
     audioReady = true;
+    updateDebug('unlock OK');
   } catch (e) {
     console.error('Audio unlock failed:', e);
+    updateDebug('FAIL: ' + e.message);
   }
 }
 
@@ -955,6 +960,28 @@ const instruments = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════
+// DEBUG OVERLAY — shows real-time audio state on screen for iOS debugging
+// ═══════════════════════════════════════════════════════════════════════
+const debugPanel = document.getElementById('debug-panel');
+let debugExtra = '';
+function updateDebug(msg) {
+  if (msg) debugExtra = msg;
+  if (!debugPanel) return;
+  const lines = [
+    'ctx:' + (audioContext ? audioContext.state : 'null'),
+    'rdy:' + audioReady,
+    't:' + (audioContext ? audioContext.currentTime.toFixed(1) : '-'),
+    'bus:' + (effectsBus ? 'Y' : 'N'),
+    'mst:' + (masterGain ? masterGain.gain.value.toFixed(1) : '-'),
+    'alive:' + (keepAliveSource ? 'Y' : 'N'),
+    'notes:' + activeNotes.size,
+  ];
+  if (debugExtra) lines.push(debugExtra);
+  debugPanel.textContent = lines.join(' | ');
+}
+setInterval(updateDebug, 400);
+
+// ═══════════════════════════════════════════════════════════════════════
 // PLAY / STOP / FLASH — V108-style piano behavior with persistent state
 // ═══════════════════════════════════════════════════════════════════════
 let noteIdCounter = 0;
@@ -963,12 +990,12 @@ const organelleActiveCount = new Map();
 const tapTimers = new Map();
 
 function playNote(organelle, noteId) {
-  // Make absolutely sure audio is unlocked + running
   unlockAudio();
-  if (!audioContext) return;
+  if (!audioContext) { updateDebug('ERR: no ctx'); return; }
   if (audioContext.state === 'suspended') {
-    audioContext.resume().catch(() => {});
+    audioContext.resume();
   }
+  updateDebug('play:' + organelle + ' st:' + audioContext.state + ' t:' + audioContext.currentTime.toFixed(2));
 
   const info = ORGANELLES[organelle];
   if (!info) return;
