@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cellaphone">
+<meta name="theme-color" content="#ffe9b3">
+<title>Cellaphone · make a cell sing!</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%23fff4d8' stroke='%23ff6b9d' stroke-width='2'/><circle cx='11' cy='12' r='4' fill='%23a78bfa'/><ellipse cx='22' cy='10' rx='3' ry='1.5' fill='%23ff8c42'/><circle cx='8' cy='22' r='1.5' fill='%23ffd23f'/><circle cx='12' cy='24' r='1.5' fill='%23ffd23f'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --c-cytoplasm: #fff4d8;
+  --c-membrane: #ff6b9d;
+  --c-membrane-shadow: #cc4878;
+  --c-nucleus: #a78bfa;
+  --c-nucleus-shadow: #7466c8;
+  --c-mitochondria: #ff8c42;
+  --c-mitochondria-shadow: #cc6620;
+  --c-cytoskeleton: #5ed463;
+  --c-cytoskeleton-shadow: #3aa040;
+  --c-ribosomes: #ffd23f;
+  --c-ribosomes-shadow: #caa01a;
+  --c-golgi: #ff9355;
+  --c-golgi-shadow: #cc6028;
+  --c-lysosomes: #ff5fa8;
+  --c-lysosomes-shadow: #cc3878;
+
+  --bg-1: #ffe9b3;
+  --bg-2: #ffd0e0;
+  --bg-3: #c8e7ff;
+
+  --text-dark: #4a2860;
+  --text-medium: #6a4a70;
+  --text-light: #9a8090;
+  --title: #ff4a8a;
+  --title-shadow: #ffffff;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: 'Fredoka', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+  color: var(--text-dark);
+}
+
+/* ─── PORTRAIT ROTATE PROMPT ─────────────────────────────────────────── */
+.rotate-prompt {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, var(--bg-1), var(--bg-3));
+  z-index: 999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  text-align: center;
+}
+@media (orientation: portrait) {
+  .rotate-prompt { display: flex; }
+  .app { display: none !important; }
+}
+.rotate-icon {
+  width: 100px;
+  height: 100px;
+  animation: rotate-anim 2.4s ease-in-out infinite;
+}
+@keyframes rotate-anim {
+  0%, 45% { transform: rotate(0deg); }
+  55%, 95% { transform: rotate(-90deg); }
+  100% { transform: rotate(-90deg); }
+}
+.rotate-title {
+  font-family: 'Bagel Fat One', 'Fredoka', sans-serif;
+  font-size: 2rem;
+  color: var(--title);
+  line-height: 1.2;
+}
+.rotate-sub {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-medium);
+  max-width: 320px;
+  line-height: 1.4;
+}
+
+/* ─── APP LAYOUT (3 rows) ────────────────────────────────────────────── */
+.app {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: clamp(6px, 1vh, 12px);
+  padding: clamp(8px, 1.4vh, 18px) clamp(10px, 1.5vw, 22px);
+}
+
+/* ─── TOP BAR: title + instrument row ───────────────────────────────── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(8px, 2vw, 24px);
+  flex-shrink: 0;
+}
+
+.app-title {
+  font-family: 'Bagel Fat One', 'Fredoka', sans-serif;
+  font-weight: 400;
+  font-size: clamp(22px, 3.6vw, 40px);
+  color: var(--title);
+  line-height: 1;
+  letter-spacing: 0.2px;
+  text-shadow:
+    2px 2px 0 #fff,
+    -1px -1px 0 #fff,
+    1px -1px 0 #fff,
+    -1px 1px 0 #fff;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.instrument-row {
+  display: flex;
+  gap: clamp(6px, 1vw, 12px);
+  align-items: center;
+}
+
+.instrument {
+  width: clamp(40px, 6vw, 56px);
+  height: clamp(40px, 6vw, 56px);
+  background: var(--inst-color);
+  border: 3px solid #fff;
+  border-radius: clamp(10px, 1.4vw, 14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--inst-shadow);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.instrument:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--inst-shadow);
+}
+.instrument.selected {
+  box-shadow: 0 4px 0 var(--inst-shadow), 0 0 0 3px #ff8a3d;
+}
+.instrument svg {
+  width: 60%;
+  height: 60%;
+}
+
+.instrument.flute   { --inst-color: #ffd86b; --inst-shadow: #d4a82a; }
+.instrument.chimes  { --inst-color: #7fc4e0; --inst-shadow: #4a96b8; }
+.instrument.sitar   { --inst-color: #c89aff; --inst-shadow: #9466cc; }
+.instrument.cello   { --inst-color: #ff9bbf; --inst-shadow: #cc5e8a; }
+
+/* ─── WELCOME BANNER ────────────────────────────────────────────────── */
+.welcome {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: clamp(12px, 1.6vw, 18px);
+  padding: clamp(6px, 1vh, 12px) clamp(12px, 2vw, 22px);
+  flex-shrink: 0;
+}
+.welcome-text {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(11px, 1.45vw, 16px);
+  font-weight: 500;
+  color: var(--text-medium);
+  line-height: 1.35;
+  text-align: center;
+}
+.welcome-text strong {
+  font-weight: 700;
+  color: var(--title);
+}
+
+/* ─── MAIN ROW: rail | cell | rail ──────────────────────────────────── */
+.main-row {
+  display: grid;
+  grid-template-columns: minmax(118px, 14%) 1fr minmax(118px, 14%);
+  gap: clamp(8px, 1.2vw, 16px);
+  min-height: 0;
+  min-width: 0;
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(5px, 0.9vh, 10px);
+  min-height: 0;
+  min-width: 0;
+}
+
+/* ─── ORGANELLE CARDS ───────────────────────────────────────────────── */
+.card {
+  background: #fff;
+  border: 2.5px solid var(--c-border);
+  border-radius: clamp(10px, 1.4vw, 14px);
+  padding: clamp(5px, 0.9vh, 10px) clamp(6px, 0.9vw, 11px);
+  box-shadow: 0 3px 0 var(--c-shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1px, 0.3vh, 4px);
+  flex: 1;
+  min-height: 0;
+  transition: background-color 0.14s ease, transform 0.12s ease, box-shadow 0.12s ease;
+  overflow: hidden;
+}
+.card.flash {
+  background: var(--c-border);
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 4px 0 var(--c-shadow), 0 0 0 3px var(--c-border);
+}
+
+.card-title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(11px, 1.45vw, 16px);
+  font-weight: 700;
+  color: var(--c-text);
+  line-height: 1;
+  transition: color 0.14s ease;
+}
+.card.flash .card-title { color: #fff; }
+
+.card-meta {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(9px, 1.05vw, 12px);
+  font-weight: 500;
+  color: #9a8090;
+  letter-spacing: 0.02em;
+  transition: color 0.14s ease;
+}
+.card.flash .card-meta { color: rgba(255,255,255,0.88); }
+
+.card-desc {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(9.5px, 1.2vw, 13px);
+  font-weight: 500;
+  color: var(--text-dark);
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  transition: color 0.14s ease;
+}
+.card.flash .card-desc { color: #fff; }
+
+/* Per-organelle color variables on each card */
+.card[data-card="nucleus"]      { --c-border: #a78bfa; --c-shadow: #7466c8; --c-text: #6a3aa8; }
+.card[data-card="membrane"]     { --c-border: #ff6b9d; --c-shadow: #cc4878; --c-text: #b03868; }
+.card[data-card="ribosomes"]    { --c-border: #ffd23f; --c-shadow: #caa01a; --c-text: #8a6800; }
+.card[data-card="cytoplasm"]    { --c-border: #daa050; --c-shadow: #aa7030; --c-text: #8a5520; }
+.card[data-card="mitochondria"] { --c-border: #ff8c42; --c-shadow: #cc6620; --c-text: #b04a10; }
+.card[data-card="cytoskeleton"] { --c-border: #5ed463; --c-shadow: #3aa040; --c-text: #2a7a30; }
+.card[data-card="golgi"]        { --c-border: #ff9355; --c-shadow: #cc6028; --c-text: #b04810; }
+.card[data-card="lysosomes"]    { --c-border: #ff5fa8; --c-shadow: #cc3878; --c-text: #aa2860; }
+
+/* When flashed, title color must contrast with the colored bg */
+.card[data-card="ribosomes"].flash .card-title    { color: #5a3500; }
+.card[data-card="cytoplasm"].flash .card-title    { color: #4a2d10; }
+.card[data-card="cytoskeleton"].flash .card-title { color: #1a4a1f; }
+
+/* ─── CELL PANEL ────────────────────────────────────────────────────── */
+.cell-panel {
+  background: #fff;
+  border: 4px solid #fff;
+  border-radius: clamp(16px, 2.4vw, 24px);
+  box-shadow: 0 4px 18px rgba(80, 50, 100, 0.12);
+  padding: clamp(8px, 1.2vw, 16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+}
+.cell-square {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cell-svg {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 1;
+  display: block;
+}
+
+/* Cell SVG hit zones (transparent overlay) */
+.hitzone {
+  fill: transparent;
+  stroke: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Organelle visual feedback when audio is active */
+.organelle {
+  transition: filter 0.15s ease, transform 0.15s ease;
+  transform-origin: center;
+}
+.organelle.active {
+  filter: brightness(1.18) drop-shadow(0 0 14px var(--glow, currentColor));
+}
+@keyframes glow-pulse {
+  0%, 100% { filter: brightness(1.15) drop-shadow(0 0 10px var(--glow, currentColor)); }
+  50%      { filter: brightness(1.28) drop-shadow(0 0 22px var(--glow, currentColor)); }
+}
+.organelle.pulsing {
+  animation: glow-pulse 1.2s ease-in-out infinite;
+}
+
+/* No text selection */
+svg, .instrument, .card, .welcome, .app-title {
+  -webkit-user-select: none;
+  user-select: none;
+}
+</style>
+</head>
+<body>
+
+<!-- ─── PORTRAIT ROTATE PROMPT ──────────────────────────────────────── -->
+<div class="rotate-prompt">
+  <svg class="rotate-icon" viewBox="0 0 100 100" fill="none" stroke="#ff4a8a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="28" y="12" width="44" height="76" rx="8"/>
+    <circle cx="50" cy="80" r="2.5" fill="#ff4a8a" stroke="none"/>
+    <path d="M 18 50 Q 14 60 22 68" stroke="#ff8c42" stroke-width="3"/>
+    <polygon points="22,68 24,62 18,64" fill="#ff8c42" stroke="none"/>
+  </svg>
+  <div class="rotate-title">Please rotate your device!</div>
+  <div class="rotate-sub">Cellaphone works best in landscape mode 📱➜</div>
+</div>
+
+<!-- ─── APP ─────────────────────────────────────────────────────────── -->
+<div class="app">
+
+  <!-- TOP BAR: title + instrument row -->
+  <div class="top-bar">
+    <div class="app-title">Cellaphone</div>
+    <div class="instrument-row">
+      <div class="instrument flute selected" data-instrument="shakuhachi" aria-label="Flute">
+        <svg viewBox="0 0 24 24">
+          <rect x="10" y="2" width="4" height="20" rx="2" fill="#7a4d00"/>
+          <circle cx="12" cy="7" r="0.9" fill="#ffd86b"/>
+          <circle cx="12" cy="11" r="0.9" fill="#ffd86b"/>
+          <circle cx="12" cy="15" r="0.9" fill="#ffd86b"/>
+          <circle cx="12" cy="19" r="0.9" fill="#ffd86b"/>
+        </svg>
+      </div>
+      <div class="instrument chimes" data-instrument="chime" aria-label="Wind Chimes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1a4d66" stroke-width="2" stroke-linecap="round">
+          <line x1="6" y1="3" x2="6" y2="18"/>
+          <line x1="10" y1="3" x2="10" y2="16"/>
+          <line x1="14" y1="3" x2="14" y2="14"/>
+          <line x1="18" y1="3" x2="18" y2="12"/>
+          <line x1="4" y1="3" x2="20" y2="3" stroke-width="2.5"/>
+        </svg>
+      </div>
+      <div class="instrument sitar" data-instrument="sitar" aria-label="Sitar">
+        <svg viewBox="0 0 24 24">
+          <ellipse cx="8" cy="16" rx="5" ry="6" fill="#4a2880"/>
+          <line x1="13" y1="13" x2="22" y2="3" stroke="#4a2880" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="22" cy="3" r="1.5" fill="#4a2880"/>
+        </svg>
+      </div>
+      <div class="instrument cello" data-instrument="cello" aria-label="Cello">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2 Q9 8 9 14 Q9 20 12 22 Q15 20 15 14 Q15 8 12 2 Z" fill="#7a1f3d"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- WELCOME BANNER -->
+  <div class="welcome">
+    <div class="welcome-text">
+      <strong>Hello!</strong> I am a human cell. I am very tiny, but I do a lot.
+      <strong>Tap any part of me to hear my song!</strong> ✨
+    </div>
+  </div>
+
+  <!-- MAIN ROW: left rail | cell | right rail -->
+  <div class="main-row">
+
+    <!-- LEFT RAIL: 4 cards -->
+    <div class="rail">
+      <div class="card" data-card="nucleus">
+        <div class="card-title">Nucleus</div>
+        <div class="card-meta">♪ B · 480 Hz</div>
+        <div class="card-desc">I hold the cell's plan!</div>
+      </div>
+      <div class="card" data-card="membrane">
+        <div class="card-title">Membrane</div>
+        <div class="card-meta">♪ C · 512 Hz</div>
+        <div class="card-desc">I'm the cell's skin!</div>
+      </div>
+      <div class="card" data-card="ribosomes">
+        <div class="card-title">Ribosomes</div>
+        <div class="card-meta">♪ E · 320 Hz</div>
+        <div class="card-desc">We build proteins!</div>
+      </div>
+      <div class="card" data-card="cytoplasm">
+        <div class="card-title">Cytoplasm</div>
+        <div class="card-meta">♪ C · 256 Hz</div>
+        <div class="card-desc">I'm the jelly inside!</div>
+      </div>
+    </div>
+
+    <!-- CENTER: cell -->
+    <div class="cell-panel">
+      <div class="cell-square">
+        <svg class="cell-svg" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet">
+
+          <!-- DECORATIVE LAYER (visual) -->
+          <g pointer-events="none">
+
+            <!-- Cytoplasm fill -->
+            <ellipse id="dec-cytoplasm" class="organelle" style="--glow: #ffd770;" cx="120" cy="120" rx="108" ry="108" fill="#fff4d8"/>
+
+            <!-- Plasma membrane ring -->
+            <ellipse id="dec-membrane" class="organelle" style="--glow: #ff6b9d;" cx="120" cy="120" rx="108" ry="108" fill="none" stroke="#ff6b9d" stroke-width="7"/>
+
+            <!-- Nucleus -->
+            <g id="dec-nucleus" class="organelle" style="--glow: #a78bfa;">
+              <circle cx="78" cy="92" r="38" fill="#a78bfa" stroke="white" stroke-width="3"/>
+              <circle cx="68" cy="84" r="3.5" fill="#3a2860"/>
+              <circle cx="86" cy="84" r="3.5" fill="#3a2860"/>
+              <path d="M 70 100 Q 78 106 86 100" stroke="#3a2860" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            </g>
+
+            <!-- Mitochondria (two beans) -->
+            <g id="dec-mitochondria" class="organelle" style="--glow: #ff8c42;">
+              <g transform="translate(178 56) rotate(22)">
+                <ellipse rx="22" ry="11" fill="#ff8c42" stroke="white" stroke-width="3"/>
+                <circle cx="-6" cy="-1" r="1.8" fill="#5a2900"/>
+                <circle cx="4" cy="-1" r="1.8" fill="#5a2900"/>
+                <path d="M -5 3.5 Q 0 5.5 5 3.5" stroke="#5a2900" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              </g>
+              <g transform="translate(180 168) rotate(-18)">
+                <ellipse rx="20" ry="10" fill="#ff8c42" stroke="white" stroke-width="3"/>
+                <circle cx="-5" cy="-1" r="1.6" fill="#5a2900"/>
+                <circle cx="4" cy="-1" r="1.6" fill="#5a2900"/>
+              </g>
+            </g>
+
+            <!-- Cytoskeleton -->
+            <g id="dec-cytoskeleton" class="organelle" style="--glow: #5ed463;">
+              <line x1="160" y1="100" x2="200" y2="108" stroke="#5ed463" stroke-width="5" stroke-linecap="round"/>
+              <line x1="160" y1="115" x2="200" y2="123" stroke="#5ed463" stroke-width="5" stroke-linecap="round"/>
+              <line x1="160" y1="130" x2="200" y2="138" stroke="#5ed463" stroke-width="5" stroke-linecap="round"/>
+            </g>
+
+            <!-- Ribosomes -->
+            <g id="dec-ribosomes" class="organelle" style="--glow: #ffd23f;">
+              <circle cx="48" cy="156" r="6" fill="#ffd23f" stroke="white" stroke-width="2"/>
+              <circle cx="62" cy="166" r="6" fill="#ffd23f" stroke="white" stroke-width="2"/>
+              <circle cx="46" cy="178" r="6" fill="#ffd23f" stroke="white" stroke-width="2"/>
+              <circle cx="64" cy="188" r="6" fill="#ffd23f" stroke="white" stroke-width="2"/>
+              <circle cx="52" cy="200" r="6" fill="#ffd23f" stroke="white" stroke-width="2"/>
+              <circle cx="72" cy="200" r="6" fill="#ffd23f" stroke="white" stroke-width="2"/>
+            </g>
+
+            <!-- Golgi -->
+            <g id="dec-golgi" class="organelle" style="--glow: #ff9355;">
+              <ellipse cx="120" cy="188" rx="28" ry="6" fill="#ffb380" stroke="white" stroke-width="2.5"/>
+              <ellipse cx="120" cy="198" rx="26" ry="6" fill="#ff9355" stroke="white" stroke-width="2.5"/>
+              <ellipse cx="120" cy="208" rx="22" ry="6" fill="#ff7733" stroke="white" stroke-width="2.5"/>
+            </g>
+
+            <!-- Lysosomes -->
+            <g id="dec-lysosomes" class="organelle" style="--glow: #ff5fa8;">
+              <circle cx="166" cy="210" r="11" fill="#ff5fa8" stroke="white" stroke-width="2.5"/>
+              <circle cx="190" cy="200" r="8" fill="#ff5fa8" stroke="white" stroke-width="2.5"/>
+              <circle cx="200" cy="218" r="9" fill="#ff5fa8" stroke="white" stroke-width="2.5"/>
+              <circle cx="163" cy="206" r="2.5" fill="white"/>
+              <circle cx="188" cy="197" r="1.8" fill="white"/>
+            </g>
+
+          </g>
+
+          <!-- HIT ZONES (transparent, on top, ordered for specificity) -->
+          <g>
+            <circle class="hitzone" cx="120" cy="120" r="100" data-organelle="cytoplasm"/>
+            <path class="hitzone" data-organelle="membrane" fill-rule="evenodd"
+              d="M 120 4 A 116 116 0 1 0 120 236 A 116 116 0 1 0 120 4 Z M 120 17 A 103 103 0 1 1 120 223 A 103 103 0 1 1 120 17 Z"/>
+            <circle class="hitzone" cx="78" cy="92" r="48" data-organelle="nucleus"/>
+            <ellipse class="hitzone" cx="178" cy="56" rx="30" ry="20" data-organelle="mitochondria"/>
+            <ellipse class="hitzone" cx="180" cy="168" rx="28" ry="18" data-organelle="mitochondria"/>
+            <rect class="hitzone" x="148" y="90" width="60" height="58" data-organelle="cytoskeleton"/>
+            <rect class="hitzone" x="32" y="142" width="58" height="78" data-organelle="ribosomes"/>
+            <ellipse class="hitzone" cx="120" cy="198" rx="38" ry="22" data-organelle="golgi"/>
+            <path class="hitzone" data-organelle="lysosomes"
+              d="M 150 188 L 215 188 L 220 230 L 148 230 Z"/>
+          </g>
+
+        </svg>
+      </div>
+    </div>
+
+    <!-- RIGHT RAIL: 4 cards -->
+    <div class="rail">
+      <div class="card" data-card="mitochondria">
+        <div class="card-title">Mitochondria</div>
+        <div class="card-meta">♪ G · 384 Hz</div>
+        <div class="card-desc">I make energy!</div>
+      </div>
+      <div class="card" data-card="cytoskeleton">
+        <div class="card-title">Cytoskeleton</div>
+        <div class="card-meta">♪ F · 352 Hz</div>
+        <div class="card-desc">I'm the cell's bones!</div>
+      </div>
+      <div class="card" data-card="golgi">
+        <div class="card-title">Golgi</div>
+        <div class="card-meta">♪ D · 288 Hz</div>
+        <div class="card-desc">I pack and ship things to other cells!</div>
+      </div>
+      <div class="card" data-card="lysosomes">
+        <div class="card-title">Lysosomes</div>
+        <div class="card-meta">♪ A♭ · 416 Hz</div>
+        <div class="card-desc">I recycle stuff!</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// ─── ORGANELLE DEFINITIONS ──────────────────────────────────────────────
+// freq = Cellular Lambdoma frequency (Hz). color = decorative + label color.
+const ORGANELLES = {
+  cytoplasm:    { freq: 256, color: '#daa050', shadow: '#aa7030', name: 'Cytoplasm',          desc: "I'm the jelly inside, where everything floats!" },
+  membrane:     { freq: 512, color: '#ff6b9d', shadow: '#cc4878', name: 'Plasma Membrane',    desc: "I'm the cell's skin. I keep things in and out!" },
+  nucleus:      { freq: 480, color: '#a78bfa', shadow: '#7466c8', name: 'Nucleus',            desc: "I'm the cell's brain. I hold all the instructions!" },
+  mitochondria: { freq: 384, color: '#ff8c42', shadow: '#cc6620', name: 'Mitochondria',       desc: "I make the energy your cell needs to work!" },
+  cytoskeleton: { freq: 352, color: '#5ed463', shadow: '#3aa040', name: 'Cytoskeleton',       desc: "I'm the cell's bones. I keep it strong!" },
+  ribosomes:    { freq: 320, color: '#ffd23f', shadow: '#caa01a', name: 'Ribosomes',          desc: "We build proteins, like tiny LEGO factories!" },
+  golgi:        { freq: 288, color: '#ff9355', shadow: '#cc6028', name: 'Golgi & ER',         desc: "I pack and ship stuff around the cell!" },
+  lysosomes:    { freq: 416, color: '#ff5fa8', shadow: '#cc3878', name: 'Lysosomes',          desc: "I clean up old stuff and recycle it!" },
+};
+
+// ─── AUDIO ENGINE ────────────────────────────────────────────────────────
+let audioContext = null;
+let masterGain = null;
+let effectsBus = null;
+let reverbConvolver = null;
+let reverbWet, reverbDry;
+let delayNode, delayFeedback, delayGain;
+const allOscillatorNodes = new Set();
+const activeNotes = new Map(); // organelle name -> entry
+
+let currentInstrument = 'shakuhachi';
+
+function createReverbImpulse() {
+  const sr = audioContext.sampleRate;
+  const len = sr * 2;
+  const imp = audioContext.createBuffer(2, len, sr);
+  const L = imp.getChannelData(0), R = imp.getChannelData(1);
+  for (let i = 0; i < len; i++) {
+    const d = Math.exp(-i / (sr * 0.5));
+    L[i] = (Math.random() * 2 - 1) * d;
+    R[i] = (Math.random() * 2 - 1) * d;
+  }
+  return imp;
+}
+
+function initAudio() {
+  if (audioContext) return;
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+  masterGain = audioContext.createGain();
+  masterGain.gain.value = 0.65;
+  effectsBus = audioContext.createGain();
+
+  // Reverb: fixed 33% wet
+  reverbConvolver = audioContext.createConvolver();
+  reverbConvolver.buffer = createReverbImpulse();
+  reverbWet = audioContext.createGain();
+  reverbDry = audioContext.createGain();
+  reverbWet.gain.value = 0.33;
+  reverbDry.gain.value = 1.0;
+
+  // Echo: fixed 20%
+  delayNode = audioContext.createDelay(2.0);
+  delayNode.delayTime.value = 0.375;
+  delayFeedback = audioContext.createGain();
+  delayFeedback.gain.value = 0.20 * 0.6; // 0.12
+  delayGain = audioContext.createGain();
+  delayGain.gain.value = 0.20 * 0.5; // 0.10
+
+  // Wire chain
+  effectsBus.connect(reverbConvolver);
+  reverbConvolver.connect(reverbWet);
+  reverbWet.connect(masterGain);
+  effectsBus.connect(reverbDry);
+  reverbDry.connect(masterGain);
+
+  effectsBus.connect(delayNode);
+  delayNode.connect(delayFeedback);
+  delayFeedback.connect(delayNode);
+  delayNode.connect(delayGain);
+  delayGain.connect(masterGain);
+
+  masterGain.connect(audioContext.destination);
+}
+
+// ─── INSTRUMENT SYNTHS (ported from Lambdoma Studio V108) ───────────────
+const instruments = {
+
+  'shakuhachi': {
+    defaultAtk: 90, defaultRel: 450,
+    synthesize(freq, atk, rel, ctx, dest, held) {
+      const nodes = [];
+      const masterGainNode = ctx.createGain();
+      masterGainNode.connect(dest);
+      const now = ctx.currentTime;
+      const windAttack = Math.max(atk, 0.12);
+      const naturalRelease = Math.max(rel, 0.3);
+
+      // Breath noise
+      const noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const nd = noiseBuf.getChannelData(0);
+      for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+      const breath = ctx.createBufferSource();
+      breath.buffer = noiseBuf;
+      breath.loop = true;
+      [{ f: freq * 1.05, q: 8, amp: 0.20 }, { f: freq * 2.8, q: 4, amp: 0.10 }].forEach(({ f, q, amp }) => {
+        const filt = ctx.createBiquadFilter();
+        filt.type = 'bandpass'; filt.frequency.value = f; filt.Q.value = q;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0, now);
+        g.gain.linearRampToValueAtTime(amp, now + windAttack * 0.6);
+        breath.connect(filt); filt.connect(g); g.connect(masterGainNode);
+        nodes.push(filt, g);
+      });
+      breath.start(now); nodes.push(breath); allOscillatorNodes.add(breath);
+
+      // Vibrato LFO
+      const lfo = ctx.createOscillator(), lfoGain = ctx.createGain();
+      lfo.frequency.value = 4.8; lfo.type = 'sine';
+      lfoGain.gain.setValueAtTime(0, now);
+      lfoGain.gain.linearRampToValueAtTime(freq * 0.006, now + windAttack + 0.4);
+      lfo.connect(lfoGain); lfo.start(now);
+      nodes.push(lfo, lfoGain); allOscillatorNodes.add(lfo);
+
+      [{ ratio: 1.0, amp: 0.85 }, { ratio: 3.0, amp: 0.06 }].forEach(({ ratio, amp }) => {
+        const osc = ctx.createOscillator(), g = ctx.createGain();
+        osc.frequency.value = freq * ratio; osc.type = 'sine';
+        lfoGain.connect(osc.frequency);
+        g.gain.setValueAtTime(0, now);
+        g.gain.linearRampToValueAtTime(0.16 * amp, now + windAttack * 1.3);
+        osc.connect(g); g.connect(masterGainNode);
+        osc.start(now);
+        nodes.push(osc, g); allOscillatorNodes.add(osc);
+      });
+
+      return { nodes, gainNode: masterGainNode, releaseTime: naturalRelease, isHeld: true };
+    }
+  },
+
+  'chime': {
+    defaultAtk: 5, defaultRel: 1200,
+    synthesize(freq, atk, rel, ctx, dest, held) {
+      const nodes = [];
+      const masterGainNode = ctx.createGain();
+      masterGainNode.connect(dest);
+      const now = ctx.currentTime;
+      const naturalRelease = Math.max(rel * 0.001, 0.6);
+
+      const partials = [
+        { ratio: 1.000, amp: 0.80 },
+        { ratio: 2.756, amp: 0.55 },
+        { ratio: 5.404, amp: 0.28 },
+        { ratio: 8.933, amp: 0.12 },
+      ].filter(p => freq * p.ratio < 18000);
+
+      function strike(t, scale) {
+        partials.forEach(({ ratio, amp }, i) => {
+          const osc = ctx.createOscillator(), g = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq * ratio * (1 + i * 0.001);
+          osc.connect(g); g.connect(masterGainNode);
+          const pk = 0.13 * amp * scale;
+          const decay = naturalRelease * Math.pow(0.52, i);
+          g.gain.setValueAtTime(0, t);
+          g.gain.linearRampToValueAtTime(pk, t + 0.004);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.004 + decay);
+          osc.start(t);
+          osc.stop(t + 0.004 + decay + 0.05);
+          nodes.push(osc, g);
+          allOscillatorNodes.add(osc);
+          osc.onended = () => allOscillatorNodes.delete(osc);
+        });
+      }
+
+      strike(now, 1.0);
+      strike(now + 0.18 + Math.random() * 0.12, 0.55);
+      strike(now + 0.42 + Math.random() * 0.18, 0.35);
+      strike(now + 0.75 + Math.random() * 0.25, 0.20);
+
+      let stopped = false;
+      function scheduleNextStrike() {
+        if (stopped) return;
+        const interval = 600 + Math.random() * 800;
+        setTimeout(() => {
+          if (stopped) return;
+          strike(ctx.currentTime, 0.08 + Math.random() * 0.18);
+          scheduleNextStrike();
+        }, interval);
+      }
+      if (held) setTimeout(() => { if (!stopped) scheduleNextStrike(); }, 1000);
+
+      function stopCallback() { stopped = true; }
+      return { nodes, gainNode: masterGainNode, releaseTime: naturalRelease, isHeld: held, stopCallback };
+    }
+  },
+
+  'sitar': {
+    defaultAtk: 6, defaultRel: 1800,
+    synthesize(freq, atk, rel, ctx, dest, held) {
+      const nodes = [];
+      const masterGainNode = ctx.createGain();
+      masterGainNode.connect(dest);
+      const now = ctx.currentTime;
+      const pluckAttack = Math.max(atk, 0.008);
+      const naturalRelease = Math.max(rel, 0.5);
+
+      const partials = [
+        { ratio: 1.0, amp: 1.00 }, { ratio: 2.0, amp: 0.50 },
+        { ratio: 3.0, amp: 0.65 }, { ratio: 4.0, amp: 0.20 },
+        { ratio: 5.0, amp: 0.35 }, { ratio: 6.0, amp: 0.12 },
+        { ratio: 7.0, amp: 0.18 },
+      ];
+
+      [0, 1.5].forEach((cents, setIdx) => {
+        const detune = Math.pow(2, cents / 1200);
+        const setAmp = setIdx === 0 ? 1.0 : 0.45;
+        partials.forEach(({ ratio, amp }, i) => {
+          const osc = ctx.createOscillator(), g = ctx.createGain();
+          osc.frequency.value = freq * ratio * detune; osc.type = 'sine';
+          const partialAmp = 0.08 * amp * setAmp;
+          const partialDecay = naturalRelease * Math.pow(0.78, i);
+          g.gain.setValueAtTime(0, now);
+          g.gain.linearRampToValueAtTime(partialAmp, now + pluckAttack);
+          const floor = held ? Math.max(partialAmp * 0.1, 0.001) : 0.0001;
+          g.gain.exponentialRampToValueAtTime(floor, now + pluckAttack + partialDecay * 2.5);
+          osc.start(now);
+          if (!held) osc.stop(now + pluckAttack + partialDecay * 2.5 + 0.05);
+          osc.connect(g); g.connect(masterGainNode);
+          nodes.push(osc, g); allOscillatorNodes.add(osc);
+        });
+      });
+
+      const sympCents = [-5, 0, 2, 7, 12, 19];
+      sympCents.forEach((cents, i) => {
+        const sym = ctx.createOscillator(), symG = ctx.createGain();
+        sym.frequency.value = freq * Math.pow(2, cents / 1200); sym.type = 'sine';
+        const fadeInStart = now + pluckAttack + 0.03;
+        const fadeInEnd = fadeInStart + 0.1 + i * 0.02;
+        symG.gain.setValueAtTime(0, now);
+        symG.gain.linearRampToValueAtTime(0, fadeInStart);
+        symG.gain.linearRampToValueAtTime(0.015, fadeInEnd);
+        const floor = held ? 0.003 : 0.0001;
+        symG.gain.exponentialRampToValueAtTime(floor, fadeInEnd + naturalRelease * (2.0 - i * 0.1));
+        sym.start(now);
+        if (!held) sym.stop(fadeInEnd + naturalRelease * 2.5);
+        sym.connect(symG); symG.connect(masterGainNode);
+        nodes.push(sym, symG); allOscillatorNodes.add(sym);
+      });
+
+      return { nodes, gainNode: masterGainNode, releaseTime: naturalRelease * 2.5, isHeld: held };
+    }
+  },
+
+  'cello': {
+    defaultAtk: 250, defaultRel: 1600,
+    synthesize(freq, atk, rel, ctx, dest, held) {
+      const nodes = [];
+      const masterGainNode = ctx.createGain();
+      masterGainNode.connect(dest);
+      const now = ctx.currentTime;
+      const bowAttack = Math.max(atk, 0.18);
+      const naturalRelease = Math.max(rel, 0.4);
+
+      // Bow noise
+      const noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const nd = noiseBuf.getChannelData(0);
+      for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+      const bow = ctx.createBufferSource();
+      bow.buffer = noiseBuf; bow.loop = true;
+      const bowFilt = ctx.createBiquadFilter();
+      bowFilt.type = 'bandpass'; bowFilt.frequency.value = freq * 1.5; bowFilt.Q.value = 8;
+      const bowGain = ctx.createGain();
+      bowGain.gain.setValueAtTime(0, now);
+      bowGain.gain.linearRampToValueAtTime(0.025, now + bowAttack);
+      bowGain.gain.linearRampToValueAtTime(0.015, now + bowAttack + 0.3);
+      bow.connect(bowFilt); bowFilt.connect(bowGain); bowGain.connect(masterGainNode);
+      bow.start(now);
+      nodes.push(bow, bowFilt, bowGain); allOscillatorNodes.add(bow);
+
+      // Vibrato
+      const lfo = ctx.createOscillator(), lfoGain = ctx.createGain();
+      lfo.frequency.value = 5.2; lfo.type = 'sine';
+      lfoGain.gain.setValueAtTime(0, now);
+      lfoGain.gain.linearRampToValueAtTime(freq * 0.007, now + bowAttack + 0.3);
+      lfo.connect(lfoGain);
+
+      const partials = [
+        { ratio: 1.0, amp: 1.00 }, { ratio: 2.0, amp: 0.65 },
+        { ratio: 3.0, amp: 0.45 }, { ratio: 4.0, amp: 0.28 },
+        { ratio: 5.0, amp: 0.18 }, { ratio: 6.0, amp: 0.10 },
+      ];
+      partials.forEach(({ ratio, amp }) => {
+        const osc = ctx.createOscillator(), g = ctx.createGain();
+        osc.frequency.value = freq * ratio; osc.type = 'sine';
+        lfoGain.connect(osc.frequency);
+        g.gain.setValueAtTime(0, now);
+        g.gain.linearRampToValueAtTime(0.12 * amp, now + bowAttack);
+        osc.connect(g); g.connect(masterGainNode);
+        osc.start(now);
+        nodes.push(osc, g); allOscillatorNodes.add(osc);
+      });
+      lfo.start(now);
+      nodes.push(lfo, lfoGain); allOscillatorNodes.add(lfo);
+
+      return { nodes, gainNode: masterGainNode, releaseTime: naturalRelease, isHeld: true };
+    }
+  }
+};
+
+// ─── PLAY / STOP NOTE — V108-style piano behavior ────────────────────────
+// Each tap creates a new note instance keyed by unique noteId.
+// Multi-touch and rapid retrigger both produce overlapping fresh attacks.
+// Cell organelle glows while ≥1 note for that organelle is sounding.
+// Side card flashes briefly on every tap regardless of audio duration.
+
+let noteIdCounter = 0;
+const pointerToNoteId = new Map();           // pointerId -> noteId
+const noteOrganelle = new Map();             // noteId -> organelle name
+const organelleActiveCount = new Map();      // organelle -> count of live notes
+const cardFlashTimers = new Map();           // organelle -> setTimeout id
+
+function playNote(organelle, noteId) {
+  initAudio();
+  if (audioContext.state === 'suspended') audioContext.resume();
+
+  const info = ORGANELLES[organelle];
+  if (!info) return;
+
+  const inst = instruments[currentInstrument];
+  const atkSec = inst.defaultAtk / 1000;
+  const relSec = inst.defaultRel / 1000;
+
+  const result = inst.synthesize(info.freq, atkSec, relSec, audioContext, effectsBus, true);
+  activeNotes.set(noteId, result);
+  noteOrganelle.set(noteId, organelle);
+
+  // Increment count and add cell glow if this is the first note for the organelle
+  const prevCount = organelleActiveCount.get(organelle) || 0;
+  organelleActiveCount.set(organelle, prevCount + 1);
+  if (prevCount === 0) {
+    const dec = document.getElementById('dec-' + organelle);
+    if (dec) dec.classList.add('active', 'pulsing');
+  }
+}
+
+function stopNote(noteId) {
+  const entry = activeNotes.get(noteId);
+  if (!entry) return;
+  const organelle = noteOrganelle.get(noteId);
+
+  const { nodes, gainNode, releaseTime, isHeld, stopCallback } = entry;
+  if (stopCallback) try { stopCallback(); } catch(e) {}
+
+  const now = audioContext.currentTime;
+  if (isHeld) {
+    const fadeTime = Math.max(releaseTime, 0.15);
+    try {
+      gainNode.gain.cancelScheduledValues(now);
+      gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+      gainNode.gain.linearRampToValueAtTime(0, now + fadeTime);
+    } catch(e) {}
+    nodes.forEach(n => {
+      if (n instanceof OscillatorNode || n instanceof AudioBufferSourceNode) {
+        try { n.stop(now + fadeTime + 0.05); } catch(e) {}
+        allOscillatorNodes.delete(n);
+      }
+    });
+    setTimeout(() => {
+      try { gainNode.disconnect(); } catch(e) {}
+      nodes.forEach(n => { try { n.disconnect(); } catch(e) {} });
+    }, (fadeTime + 0.15) * 1000);
+  } else {
+    // Percussive — natural decay schedules its own oscillator stops
+    setTimeout(() => {
+      try { gainNode.disconnect(); } catch(e) {}
+      nodes.forEach(n => { try { n.disconnect(); } catch(e) {} });
+    }, releaseTime * 1000 + 250);
+  }
+
+  activeNotes.delete(noteId);
+  noteOrganelle.delete(noteId);
+
+  // Decrement count; remove cell glow only when last note for organelle stops
+  if (organelle) {
+    const newCount = (organelleActiveCount.get(organelle) || 1) - 1;
+    organelleActiveCount.set(organelle, Math.max(newCount, 0));
+    if (newCount <= 0) {
+      const dec = document.getElementById('dec-' + organelle);
+      if (dec) dec.classList.remove('active', 'pulsing');
+    }
+  }
+}
+
+// ─── CARD FLASH ──────────────────────────────────────────────────────────
+function flashCard(organelle) {
+  const card = document.querySelector(`.card[data-card="${organelle}"]`);
+  if (!card) return;
+  card.classList.add('flash');
+  if (cardFlashTimers.has(organelle)) clearTimeout(cardFlashTimers.get(organelle));
+  cardFlashTimers.set(organelle, setTimeout(() => {
+    card.classList.remove('flash');
+    cardFlashTimers.delete(organelle);
+  }, 280));
+}
+
+// ─── POINTER EVENTS ON HIT ZONES ─────────────────────────────────────────
+document.querySelectorAll('.hitzone').forEach(hz => {
+  const organelle = hz.dataset.organelle;
+
+  hz.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    try { hz.setPointerCapture(e.pointerId); } catch(_) {}
+    const noteId = ++noteIdCounter;
+    pointerToNoteId.set(e.pointerId, noteId);
+    playNote(organelle, noteId);
+    flashCard(organelle);
+  });
+
+  hz.addEventListener('pointerup', e => {
+    try { hz.releasePointerCapture(e.pointerId); } catch(_) {}
+    const noteId = pointerToNoteId.get(e.pointerId);
+    if (noteId !== undefined) {
+      stopNote(noteId);
+      pointerToNoteId.delete(e.pointerId);
+    }
+  });
+
+  hz.addEventListener('pointercancel', e => {
+    try { hz.releasePointerCapture(e.pointerId); } catch(_) {}
+    const noteId = pointerToNoteId.get(e.pointerId);
+    if (noteId !== undefined) {
+      stopNote(noteId);
+      pointerToNoteId.delete(e.pointerId);
+    }
+  });
+});
+
+// Prevent right-click / long-press context menu on cell
+document.querySelector('.cell-svg').addEventListener('contextmenu', e => e.preventDefault());
+
+// ─── INSTRUMENT SELECTION ────────────────────────────────────────────────
+document.querySelectorAll('.instrument').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.instrument').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    currentInstrument = btn.dataset.instrument;
+    // Stop any active notes when switching instrument
+    Array.from(activeNotes.keys()).forEach(id => stopNote(id));
+    pointerToNoteId.clear();
+  });
+});
+
+// ─── iOS AUDIO UNLOCK ────────────────────────────────────────────────────
+function unlockAudio() {
+  if (!audioContext) initAudio();
+  if (audioContext && audioContext.state === 'suspended') audioContext.resume();
+}
+document.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+document.addEventListener('click', unlockAudio, { once: true, passive: true });
+
+// ─── PREVENT BOUNCE / ZOOM ───────────────────────────────────────────────
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('dblclick', e => e.preventDefault());
+document.addEventListener('touchmove', e => {
+  if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+</script>
+
+</body>
+</html>
