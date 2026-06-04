@@ -278,14 +278,12 @@ body {
   filter: drop-shadow(0 6px 18px rgba(80, 40, 100, 0.2));
   animation: cell-breathe 5s ease-in-out infinite;
 }
-/* Phone only: stretch cell wider to fill horizontal space between rails.
-   Uses max-height (viewport constraint) to detect phone landscape. 
-   iPad landscape is ~820px+ tall, phone landscape is ~340-430px tall. */
+/* Two SVGs: phone (wide) and default (iPad/desktop). Only one visible at a time. */
+.cell-svg-phone { display: none; }
+.cell-svg-default { display: block; }
 @media (max-height: 500px) {
-  .cell-svg { transform: scaleX(1.22); transform-origin: center center; }
-}
-@media (max-height: 400px) {
-  .cell-svg { transform: scaleX(1.32); transform-origin: center center; }
+  .cell-svg-phone { display: block; }
+  .cell-svg-default { display: none; }
 }
 @keyframes cell-breathe {
   0%, 100% { transform: scale(1); }
@@ -489,7 +487,7 @@ svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-sel
 
     <!-- CELL -->
     <div class="cell-stage">
-      <svg class="cell-svg" viewBox="0 0 500 340" preserveAspectRatio="xMidYMid meet">
+      <svg class="cell-svg cell-svg-default" viewBox="0 0 500 340" preserveAspectRatio="xMidYMid meet">
 
         <defs>
           <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
@@ -717,6 +715,206 @@ svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-sel
           <ellipse class="hitzone" data-organelle="ribosomes"   cx="215" cy="70"  rx="45" ry="28"/>
           <ellipse class="hitzone" data-organelle="golgi"       cx="200" cy="260" rx="78" ry="38"/>
           <ellipse class="hitzone" data-organelle="lysosomes"   cx="365" cy="255" rx="48" ry="36"/>
+        </g>
+
+      </svg>
+
+      <!-- ═══ PHONE-ONLY SVG — wider proportions, bigger organelles ═══ -->
+      <svg class="cell-svg cell-svg-phone" viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet">
+
+        <defs>
+          <filter id="glowP" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="9"/>
+          </filter>
+        </defs>
+
+        <!-- HALO LAYER -->
+        <g pointer-events="none">
+          <ellipse class="halo" data-halo="cytoplasm" cx="320" cy="150" rx="312" ry="148" fill="#ffd770" filter="url(#glowP)"/>
+          <ellipse class="halo" data-halo="membrane" cx="320" cy="150" rx="305" ry="142" fill="none" stroke="#ff6b9d" stroke-width="30" filter="url(#glowP)"/>
+          <ellipse class="halo" data-halo="nucleus" cx="160" cy="138" rx="92" ry="88" fill="#a78bfa" filter="url(#glowP)"/>
+          <ellipse class="halo" data-halo="mitochondria" cx="468" cy="82" rx="72" ry="38" fill="#ff8c42" filter="url(#glowP)" transform="rotate(-15 468 82)"/>
+          <ellipse class="halo" data-halo="mitochondria" cx="488" cy="168" rx="64" ry="34" fill="#ff8c42" filter="url(#glowP)" transform="rotate(10 488 168)"/>
+          <rect class="halo" data-halo="cytoskeleton" x="318" y="68" width="80" height="145" rx="14" fill="#5ed463" filter="url(#glowP)" transform="rotate(-8 358 140)"/>
+          <ellipse class="halo" data-halo="ribosomes" cx="282" cy="65" rx="62" ry="38" fill="#ffd23f" filter="url(#glowP)"/>
+          <ellipse class="halo" data-halo="golgi" cx="260" cy="240" rx="90" ry="46" fill="#d4854a" filter="url(#glowP)"/>
+          <ellipse class="halo" data-halo="lysosomes" cx="455" cy="245" rx="60" ry="44" fill="#ff5fa8" filter="url(#glowP)"/>
+        </g>
+
+        <!-- CYTOPLASM -->
+        <g class="organelle" data-organelle-dec="cytoplasm">
+          <path d="M 320 12 C 455 8, 560 48, 600 115 C 626 158, 624 210, 592 252 C 552 296, 450 300, 320 298 C 190 300, 88 292, 48 248 C 18 210, 14 158, 38 115 C 72 50, 185 8, 320 12 Z" fill="#fff4d8"/>
+          <circle class="cyto-dot-1" cx="360" cy="110" r="2.5" fill="#e8d4a0" opacity="0.6"/>
+          <circle class="cyto-dot-2" cx="420" cy="180" r="2.5" fill="#e8d4a0" opacity="0.55"/>
+          <circle class="cyto-dot-3" cx="540" cy="140" r="2.2" fill="#e8d4a0" opacity="0.6"/>
+          <circle class="cyto-dot-1" cx="510" cy="220" r="2.5" fill="#e8d4a0" opacity="0.55"/>
+          <circle class="cyto-dot-2" cx="395" cy="260" r="2.2" fill="#e8d4a0" opacity="0.6"/>
+          <circle class="cyto-dot-3" cx="250" cy="275" r="2.5" fill="#e8d4a0" opacity="0.55"/>
+          <circle class="cyto-dot-1" cx="120" cy="250" r="2.2" fill="#e8d4a0" opacity="0.6"/>
+          <circle class="cyto-dot-2" cx="75" cy="175" r="2.5" fill="#e8d4a0" opacity="0.55"/>
+          <circle class="cyto-dot-3" cx="100" cy="110" r="2.2" fill="#e8d4a0" opacity="0.6"/>
+          <circle class="cyto-dot-1" cx="210" cy="50" r="2.5" fill="#e8d4a0" opacity="0.55"/>
+          <circle class="cyto-dot-2" cx="460" cy="58" r="2.2" fill="#e8d4a0" opacity="0.6"/>
+          <circle class="cyto-dot-3" cx="565" cy="185" r="2.5" fill="#e8d4a0" opacity="0.55"/>
+          <circle class="cyto-dot-1" cx="320" cy="195" r="2" fill="#e8d4a0" opacity="0.55"/>
+          <circle class="cyto-dot-2" cx="170" cy="210" r="2.2" fill="#e8d4a0" opacity="0.5"/>
+          <circle class="cyto-dot-3" cx="500" cy="98" r="2" fill="#e8d4a0" opacity="0.55"/>
+          <circle class="cyto-dot-1" cx="310" cy="52" r="2.2" fill="#e8d4a0" opacity="0.5"/>
+          <circle class="cyto-dot-2" cx="145" cy="62" r="2" fill="#e8d4a0" opacity="0.55"/>
+          <circle class="cyto-dot-3" cx="580" cy="160" r="2.2" fill="#e8d4a0" opacity="0.5"/>
+        </g>
+
+        <!-- MEMBRANE -->
+        <g class="organelle" data-organelle-dec="membrane">
+          <path d="M 320 12 C 455 8, 560 48, 600 115 C 626 158, 624 210, 592 252 C 552 296, 450 300, 320 298 C 190 300, 88 292, 48 248 C 18 210, 14 158, 38 115 C 72 50, 185 8, 320 12 Z" fill="none" stroke="#ff6b9d" stroke-width="14"/>
+          <path d="M 320 20 C 450 16, 552 54, 590 118 C 616 158, 614 206, 584 246 C 546 288, 446 292, 320 290 C 194 292, 94 284, 56 242 C 26 206, 22 158, 46 118 C 80 56, 192 16, 320 20 Z" fill="none" stroke="#ffb0cc" stroke-width="2" opacity="0.4"/>
+        </g>
+
+        <!-- NUCLEUS — bigger -->
+        <g class="organelle" data-organelle-dec="nucleus">
+          <ellipse cx="160" cy="138" rx="86" ry="82" fill="#b8a4f0" stroke="#8870d0" stroke-width="3.5"/>
+          <ellipse cx="160" cy="138" rx="79" ry="76" fill="none" stroke="#a090e0" stroke-width="1.5" opacity="0.4"/>
+          <circle cx="134" cy="112" r="19" fill="#7858c0" opacity="0.45"/>
+          <g class="nuc-normal">
+            <circle cx="140" cy="135" r="6.5" fill="#3a2860"/>
+            <circle cx="140" cy="133" r="2.2" fill="white"/>
+            <circle cx="180" cy="135" r="6.5" fill="#3a2860"/>
+            <circle cx="180" cy="133" r="2.2" fill="white"/>
+            <path d="M 148 158 Q 160 170 172 158" stroke="#3a2860" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </g>
+          <g class="nuc-playing" opacity="0">
+            <circle cx="140" cy="135" r="8.5" fill="#5a3a90"/>
+            <circle cx="140" cy="132" r="3.2" fill="white"/>
+            <circle cx="180" cy="135" r="8.5" fill="#5a3a90"/>
+            <circle cx="180" cy="132" r="3.2" fill="white"/>
+            <path d="M 145 155 Q 160 176 175 155" stroke="#3a2860" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          </g>
+          <circle cx="132" cy="150" r="6" fill="#c4a0f0" opacity="0.35"/>
+          <circle cx="188" cy="150" r="6" fill="#c4a0f0" opacity="0.35"/>
+        </g>
+
+        <!-- MITOCHONDRIA — bigger beans -->
+        <g class="organelle" data-organelle-dec="mitochondria">
+          <g transform="translate(462 80) rotate(-15)">
+            <path d="M -52 0 C -52 -27, -14 -32, 10 -25 C 32 -17, 54 -25, 54 0 C 54 25, 32 30, 10 23 C -14 15, -52 27, -52 0 Z" fill="#ff8c42" stroke="white" stroke-width="4"/>
+            <path d="M -30 -4 C -20 -18, 0 -15, 10 -4 C 20 6, 32 3, 38 -3" stroke="#d06820" stroke-width="2.5" fill="none" opacity="0.35"/>
+            <path d="M -24 8 C -14 -3, 4 0, 14 8 C 22 15, 34 11, 38 5" stroke="#d06820" stroke-width="2" fill="none" opacity="0.3"/>
+            <circle class="mito-eye" cx="-14" cy="-5" r="3.5" fill="#5a2900"/>
+            <circle class="mito-eye" cx="-14" cy="-7" r="1.2" fill="white"/>
+            <circle class="mito-eye" cx="16" cy="-5" r="3.5" fill="#5a2900"/>
+            <circle class="mito-eye" cx="16" cy="-7" r="1.2" fill="white"/>
+            <path class="mito-happy" d="M -18 -5 Q -14 -10 -10 -5" stroke="#5a2900" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0"/>
+            <path class="mito-happy" d="M 12 -5 Q 16 -10 20 -5" stroke="#5a2900" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0"/>
+            <path class="mito-normal-mouth" d="M -4 6 Q 1 11 6 6" stroke="#5a2900" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path class="mito-playing-mouth" d="M -8 5 Q 1 15 10 5" stroke="#5a2900" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0"/>
+          </g>
+          <g transform="translate(485 168) rotate(10)">
+            <path d="M -48 0 C -48 -24, -12 -28, 8 -22 C 28 -15, 48 -24, 48 0 C 48 24, 28 28, 8 20 C -12 13, -48 24, -48 0 Z" fill="#ff8c42" stroke="white" stroke-width="4"/>
+            <path d="M -26 -3 C -16 -15, 4 -13, 12 -3 C 18 6, 28 3, 34 -2" stroke="#d06820" stroke-width="2.5" fill="none" opacity="0.35"/>
+            <path d="M -20 7 C -10 -2, 6 1, 14 7 C 20 14, 30 10, 34 5" stroke="#d06820" stroke-width="2" fill="none" opacity="0.3"/>
+            <path class="mito-sleepy" d="M -16 -4 Q -12 -9 -8 -4" stroke="#5a2900" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+            <path class="mito-sleepy" d="M 8 -4 Q 12 -9 16 -4" stroke="#5a2900" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+            <circle class="mito-wake" cx="-12" cy="-5" r="3" fill="#5a2900" opacity="0"/>
+            <circle class="mito-wake" cx="-12" cy="-6.5" r="1" fill="white" opacity="0"/>
+            <circle class="mito-wake" cx="12" cy="-5" r="3" fill="#5a2900" opacity="0"/>
+            <circle class="mito-wake" cx="12" cy="-6.5" r="1" fill="white" opacity="0"/>
+            <path class="mito-normal-mouth" d="M -4 5 Q 2 8 8 5" stroke="#5a2900" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <path class="mito-playing-mouth" d="M -7 4 Q 2 13 11 4" stroke="#5a2900" stroke-width="2" fill="none" stroke-linecap="round" opacity="0"/>
+          </g>
+        </g>
+
+        <!-- CYTOSKELETON — thicker rods -->
+        <g class="organelle" data-organelle-dec="cytoskeleton">
+          <line x1="338" y1="82" x2="372" y2="212" stroke="#5ed463" stroke-width="7" stroke-linecap="round"/>
+          <line x1="352" y1="77" x2="384" y2="205" stroke="#5ed463" stroke-width="7" stroke-linecap="round"/>
+          <line x1="366" y1="73" x2="394" y2="198" stroke="#5ed463" stroke-width="7" stroke-linecap="round"/>
+          <line x1="326" y1="90" x2="358" y2="218" stroke="#5ed463" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+          <line x1="378" y1="70" x2="404" y2="192" stroke="#5ed463" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+          <circle class="cysk-eye" cx="362" cy="140" r="3.2" fill="#1a6a20"/>
+          <circle class="cysk-eye" cx="374" cy="140" r="3.2" fill="#1a6a20"/>
+          <path class="cysk-happy" d="M 358 140 Q 362 135 366 140" stroke="#1a6a20" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0"/>
+          <path class="cysk-happy" d="M 370 140 Q 374 135 378 140" stroke="#1a6a20" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0"/>
+        </g>
+
+        <!-- RIBOSOMES — MUCH bigger -->
+        <g class="organelle" data-organelle-dec="ribosomes">
+          <circle cx="255" cy="50" r="10" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+          <circle cx="282" cy="40" r="9" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+          <circle cx="310" cy="48" r="11" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+          <circle cx="330" cy="65" r="9" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+          <circle cx="268" cy="70" r="10" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+          <circle cx="298" cy="66" r="9.5" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+          <circle cx="320" cy="80" r="10" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+          <circle cx="245" cy="68" r="8.5" fill="#ffd23f" stroke="white" stroke-width="2.5"/>
+          <circle class="ribo-eye" cx="306" cy="46" r="2.2" fill="#8a6800"/>
+          <circle class="ribo-eye" cx="314" cy="46" r="2.2" fill="#8a6800"/>
+          <circle class="ribo-eye" cx="264" cy="68" r="2" fill="#8a6800"/>
+          <circle class="ribo-eye" cx="272" cy="68" r="2" fill="#8a6800"/>
+          <path class="ribo-happy" d="M 303 46 Q 306 42 309 46" stroke="#8a6800" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0"/>
+          <path class="ribo-happy" d="M 311 46 Q 314 42 317 46" stroke="#8a6800" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0"/>
+          <path class="ribo-happy" d="M 261 68 Q 264 64 267 68" stroke="#8a6800" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0"/>
+          <path class="ribo-happy" d="M 269 68 Q 272 64 275 68" stroke="#8a6800" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0"/>
+        </g>
+
+        <!-- GOLGI — wider ribbons -->
+        <g class="organelle" data-organelle-dec="golgi">
+          <path d="M 185 222 Q 260 205, 335 225" stroke="white" stroke-width="3.5" fill="#e8a060" stroke-linecap="round"/>
+          <path d="M 180 242 Q 260 222, 340 244" stroke="white" stroke-width="3.5" fill="#d4854a" stroke-linecap="round"/>
+          <path d="M 176 262 Q 258 243, 342 264" stroke="white" stroke-width="3.5" fill="#c06a30" stroke-linecap="round"/>
+          <path d="M 174 280 Q 256 263, 340 282" stroke="white" stroke-width="3.5" fill="#a85520" stroke-linecap="round"/>
+          <circle cx="340" cy="228" r="6" fill="#e8a060" stroke="white" stroke-width="1.5"/>
+          <circle cx="348" cy="248" r="5" fill="#d4854a" stroke="white" stroke-width="1.5"/>
+          <circle cx="348" cy="268" r="4.5" fill="#c06a30" stroke="white" stroke-width="1.5"/>
+          <circle cx="172" cy="254" r="4" fill="#c06a30" stroke="white" stroke-width="1.5"/>
+          <g class="golg-normal">
+            <circle cx="250" cy="238" r="2.5" fill="#6a3500"/>
+            <circle cx="262" cy="238" r="2.5" fill="#6a3500"/>
+            <path d="M 250 245 Q 256 249 262 245" stroke="#6a3500" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          </g>
+          <g class="golg-playing" opacity="0">
+            <path d="M 246 238 Q 250 233 254 238" stroke="#6a3500" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M 258 238 Q 262 233 266 238" stroke="#6a3500" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M 248 244 Q 256 254 264 244" stroke="#6a3500" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          </g>
+        </g>
+
+        <!-- LYSOSOMES — bigger -->
+        <g class="organelle" data-organelle-dec="lysosomes">
+          <circle cx="450" cy="248" r="24" fill="#ff5fa8" stroke="white" stroke-width="3.5"/>
+          <circle cx="482" cy="225" r="17" fill="#ff5fa8" stroke="white" stroke-width="3.5"/>
+          <circle cx="428" cy="230" r="15" fill="#ff5fa8" stroke="white" stroke-width="3.5"/>
+          <circle cx="465" cy="274" r="13" fill="#ff5fa8" stroke="white" stroke-width="3"/>
+          <g class="lyso-normal">
+            <circle cx="443" cy="242" r="3.8" fill="#8a1050"/>
+            <circle cx="443" cy="240" r="1.3" fill="white"/>
+            <circle cx="458" cy="242" r="3.8" fill="#8a1050"/>
+            <circle cx="458" cy="240" r="1.3" fill="white"/>
+            <path d="M 440 254 Q 450 263 460 254" stroke="#8a1050" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+            <path d="M 443 256 L 446 254 L 449 256 L 450 254 L 453 256 L 456 254 L 459 256" stroke="white" stroke-width="1.2" fill="none"/>
+          </g>
+          <g class="lyso-playing" opacity="0">
+            <circle cx="443" cy="241" r="5" fill="#8a1050"/>
+            <circle cx="443" cy="239" r="1.8" fill="white"/>
+            <circle cx="458" cy="241" r="5" fill="#8a1050"/>
+            <circle cx="458" cy="239" r="1.8" fill="white"/>
+            <path d="M 436 252 Q 450 272 464 252" stroke="#8a1050" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M 440 256 L 444 252 L 448 256 L 450 252 L 454 256 L 458 252 L 462 256" stroke="white" stroke-width="1.4" fill="none"/>
+          </g>
+          <circle cx="480" cy="221" r="4" fill="white" opacity="0.6"/>
+          <circle cx="425" cy="226" r="3" fill="white" opacity="0.6"/>
+        </g>
+
+        <!-- HIT ZONES -->
+        <g>
+          <ellipse class="hitzone" data-organelle="membrane"     cx="320" cy="150" rx="315" ry="150"/>
+          <ellipse class="hitzone" data-organelle="cytoplasm"    cx="320" cy="150" rx="290" ry="132"/>
+          <ellipse class="hitzone" data-organelle="nucleus"      cx="160" cy="138" rx="92" ry="88"/>
+          <ellipse class="hitzone" data-organelle="mitochondria" cx="462" cy="80"  rx="64" ry="36" transform="rotate(-15 462 80)"/>
+          <ellipse class="hitzone" data-organelle="mitochondria" cx="485" cy="168" rx="58" ry="32" transform="rotate(10 485 168)"/>
+          <rect    class="hitzone" data-organelle="cytoskeleton" x="315"  y="64"  width="100" height="165" transform="rotate(-5 365 147)"/>
+          <ellipse class="hitzone" data-organelle="ribosomes"    cx="285" cy="60"  rx="58" ry="35"/>
+          <ellipse class="hitzone" data-organelle="golgi"        cx="260" cy="252" rx="98" ry="44"/>
+          <ellipse class="hitzone" data-organelle="lysosomes"    cx="455" cy="250" rx="55" ry="42"/>
         </g>
 
       </svg>
