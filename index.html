@@ -188,6 +188,13 @@ body {
   gap: 18px;
   min-height: 0; min-width: 0;
 }
+/* Phone screens: narrower rails + tighter gap = more cell space */
+@media (max-width: 850px) {
+  .main-row { grid-template-columns: 115px 1fr 115px; gap: 10px; }
+}
+@media (max-width: 740px) {
+  .main-row { grid-template-columns: 100px 1fr 100px; gap: 6px; }
+}
 .rail {
   display: flex; flex-direction: column;
   gap: 14px;
@@ -261,6 +268,7 @@ body {
 .cell-stage {
   display: flex; align-items: center; justify-content: center;
   min-width: 0; min-height: 0;
+  padding: 0; overflow: visible;
 }
 .cell-svg {
   display: block;
