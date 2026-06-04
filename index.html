@@ -254,6 +254,12 @@ body {
   line-height: 1.2;
   overflow-wrap: break-word; hyphens: auto;
 }
+/* Desktop and iPad only — bigger text. Phone (max-height: 500px) keeps original sizes. */
+@media (min-height: 501px) {
+  .card-title { font-size: 22px; line-height: 1.1; }
+  .card-meta  { font-size: 16px; }
+  .card-desc  { font-size: 17px; line-height: 1.25; }
+}
 
 .card[data-card="nucleus"]      { --c-bright: #a78bfa; --c-shadow: #6b56b8; }
 .card[data-card="membrane"]     { --c-bright: #ff6b9d; --c-shadow: #c43d70; }
