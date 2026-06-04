@@ -283,6 +283,15 @@ body {
   50%  { transform: scale(1.06); filter: brightness(1.3); }
   100% { transform: scale(0.95); filter: brightness(1.0); }
 }
+
+/* Idle breathing — makes the cell feel alive */
+@keyframes breathe-slow { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+@keyframes breathe-mid  { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+@keyframes breathe-fast { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+[data-organelle-dec="nucleus"]:not(.playing):not(.tap)      { animation: breathe-slow 3.8s ease-in-out infinite; }
+[data-organelle-dec="mitochondria"]:not(.playing):not(.tap) { animation: breathe-mid  2.6s ease-in-out infinite; }
+[data-organelle-dec="lysosomes"]:not(.playing):not(.tap)    { animation: breathe-fast 3.2s ease-in-out infinite; }
+[data-organelle-dec="golgi"]:not(.playing):not(.tap)        { animation: breathe-mid  4.0s ease-in-out infinite; }
 /* Membrane + cytoplasm are huge rects — color shift + glow only, no scale. */
 [data-organelle-dec="membrane"].playing,
 [data-organelle-dec="cytoplasm"].playing { transform: none; }
@@ -439,72 +448,148 @@ svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-sel
           <rect class="halo" data-halo="lysosomes" x="335" y="220" width="85" height="65" rx="20" fill="#ff5fa8" filter="url(#glow)"/>
         </g>
 
-        <!-- Cytoplasm -->
+        <!-- Cytoplasm — subtle texture dots (cytosol proteins floating) -->
         <g class="organelle" data-organelle-dec="cytoplasm">
           <rect x="8" y="8" width="464" height="284" rx="32" fill="#fff4d8"/>
+          <!-- Subtle floating protein dots -->
+          <circle cx="165" cy="60" r="2" fill="#f5e6c0" opacity="0.7"/>
+          <circle cx="320" cy="140" r="2.5" fill="#f5e6c0" opacity="0.6"/>
+          <circle cx="280" cy="200" r="2" fill="#f5e6c0" opacity="0.7"/>
+          <circle cx="155" cy="180" r="1.8" fill="#f5e6c0" opacity="0.5"/>
+          <circle cx="340" cy="270" r="2.2" fill="#f5e6c0" opacity="0.6"/>
+          <circle cx="440" cy="130" r="2" fill="#f5e6c0" opacity="0.5"/>
+          <circle cx="170" cy="270" r="1.5" fill="#f5e6c0" opacity="0.6"/>
+          <circle cx="300" cy="50" r="2" fill="#f5e6c0" opacity="0.5"/>
         </g>
 
-        <!-- Plasma membrane -->
+        <!-- Membrane — double-line + channel protein bumps -->
         <g class="organelle" data-organelle-dec="membrane">
           <rect x="8" y="8" width="464" height="284" rx="32" fill="none" stroke="#ff6b9d" stroke-width="14"/>
+          <!-- Inner membrane line (phospholipid bilayer hint) -->
+          <rect x="14" y="14" width="452" height="272" rx="28" fill="none" stroke="#ffaac8" stroke-width="2" opacity="0.6"/>
+          <!-- Channel protein bumps along the membrane -->
+          <circle cx="120" cy="10" r="5" fill="#ff85b5" stroke="white" stroke-width="1.5"/>
+          <circle cx="240" cy="8" r="4.5" fill="#ff85b5" stroke="white" stroke-width="1.5"/>
+          <circle cx="360" cy="10" r="5" fill="#ff85b5" stroke="white" stroke-width="1.5"/>
+          <circle cx="470" cy="100" r="4.5" fill="#ff85b5" stroke="white" stroke-width="1.5"/>
+          <circle cx="472" cy="200" r="5" fill="#ff85b5" stroke="white" stroke-width="1.5"/>
+          <circle cx="8" cy="150" r="4.5" fill="#ff85b5" stroke="white" stroke-width="1.5"/>
+          <circle cx="180" cy="290" r="5" fill="#ff85b5" stroke="white" stroke-width="1.5"/>
+          <circle cx="340" cy="292" r="4.5" fill="#ff85b5" stroke="white" stroke-width="1.5"/>
         </g>
 
-        <!-- Nucleus (top-left, BIG, with face) -->
+        <!-- Nucleus — quirky winking face + nucleolus inside -->
         <g class="organelle" data-organelle-dec="nucleus">
           <circle cx="90" cy="105" r="58" fill="#a78bfa" stroke="white" stroke-width="5"/>
-          <circle cx="74" cy="94" r="5" fill="#3a2860"/>
-          <circle cx="106" cy="94" r="5" fill="#3a2860"/>
-          <path d="M 78 118 Q 90 128 102 118" stroke="#3a2860" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <!-- Nucleolus (darker spot inside) -->
+          <circle cx="105" cy="120" r="14" fill="#8b6fdf" opacity="0.6"/>
+          <!-- Winking face: one open eye, one closed -->
+          <circle cx="74" cy="92" r="5.5" fill="#3a2860"/>
+          <circle cx="74" cy="90" r="1.8" fill="white"/>  <!-- eye glint -->
+          <path d="M 101 89 Q 108 93 101 97" stroke="#3a2860" stroke-width="2.5" fill="none" stroke-linecap="round"/> <!-- wink -->
+          <!-- Tongue-out smile -->
+          <path d="M 76 115 Q 90 127 104 115" stroke="#3a2860" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <ellipse cx="90" cy="121" rx="6" ry="4" fill="#e86baa"/> <!-- tongue -->
         </g>
 
-        <!-- Mitochondria (two BIG beans with faces) -->
+        <!-- Mitochondria — beans with cristae folds + faces -->
         <g class="organelle" data-organelle-dec="mitochondria">
           <g transform="translate(390 72) rotate(18)">
             <ellipse rx="50" ry="22" fill="#ff8c42" stroke="white" stroke-width="4"/>
+            <!-- Cristae folds (inner membrane wrinkles) -->
+            <line x1="-20" y1="0" x2="-8" y2="-10" stroke="#e06a20" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+            <line x1="-5" y1="0" x2="5" y2="-12" stroke="#e06a20" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+            <line x1="10" y1="0" x2="20" y2="-10" stroke="#e06a20" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+            <!-- Excited face -->
             <circle cx="-15" cy="-3" r="3.5" fill="#5a2900"/>
+            <circle cx="-15" cy="-4.5" r="1.2" fill="white"/>
             <circle cx="10" cy="-3" r="3.5" fill="#5a2900"/>
-            <path d="M -11 6 Q 0 11 11 6" stroke="#5a2900" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <circle cx="10" cy="-4.5" r="1.2" fill="white"/>
+            <ellipse cx="-2" cy="7" rx="6" ry="4" fill="#5a2900"/> <!-- open mouth (excited!) -->
+            <ellipse cx="-2" cy="6" rx="4" ry="2" fill="#ff6b42"/> <!-- tongue -->
           </g>
           <g transform="translate(400 190) rotate(-12)">
             <ellipse rx="46" ry="20" fill="#ff8c42" stroke="white" stroke-width="4"/>
-            <circle cx="-13" cy="-3" r="3" fill="#5a2900"/>
-            <circle cx="9" cy="-3" r="3" fill="#5a2900"/>
+            <!-- Cristae folds -->
+            <line x1="-18" y1="0" x2="-8" y2="-9" stroke="#e06a20" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+            <line x1="0" y1="0" x2="8" y2="-10" stroke="#e06a20" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+            <line x1="15" y1="0" x2="22" y2="-8" stroke="#e06a20" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+            <!-- Sleepy/content face -->
+            <path d="M -16 -4 Q -12 -7 -8 -4" stroke="#5a2900" stroke-width="2" fill="none" stroke-linecap="round"/> <!-- closed eye -->
+            <path d="M 6 -4 Q 10 -7 14 -4" stroke="#5a2900" stroke-width="2" fill="none" stroke-linecap="round"/> <!-- closed eye -->
+            <path d="M -6 5 Q 0 8 6 5" stroke="#5a2900" stroke-width="2" fill="none" stroke-linecap="round"/> <!-- gentle smile -->
           </g>
         </g>
 
-        <!-- Cytoskeleton (thick green lines, more spread) -->
+        <!-- Cytoskeleton — wavy lines with nodes at ends -->
         <g class="organelle" data-organelle-dec="cytoskeleton">
-          <line x1="200" y1="80" x2="310" y2="90" stroke="#5ed463" stroke-width="11" stroke-linecap="round"/>
-          <line x1="200" y1="115" x2="310" y2="125" stroke="#5ed463" stroke-width="11" stroke-linecap="round"/>
-          <line x1="200" y1="150" x2="310" y2="160" stroke="#5ed463" stroke-width="11" stroke-linecap="round"/>
+          <!-- Organic wavy filaments instead of straight lines -->
+          <path d="M 200 82 Q 230 75 255 84 Q 280 93 310 88" stroke="#5ed463" stroke-width="10" stroke-linecap="round" fill="none"/>
+          <path d="M 200 118 Q 235 110 260 120 Q 285 130 310 124" stroke="#5ed463" stroke-width="10" stroke-linecap="round" fill="none"/>
+          <path d="M 200 154 Q 228 148 252 156 Q 278 164 310 158" stroke="#5ed463" stroke-width="10" stroke-linecap="round" fill="none"/>
+          <!-- Connection nodes at ends -->
+          <circle cx="200" cy="82"  r="5" fill="#3dc44a" stroke="white" stroke-width="2"/>
+          <circle cx="310" cy="88"  r="5" fill="#3dc44a" stroke="white" stroke-width="2"/>
+          <circle cx="200" cy="118" r="5" fill="#3dc44a" stroke="white" stroke-width="2"/>
+          <circle cx="310" cy="124" r="5" fill="#3dc44a" stroke="white" stroke-width="2"/>
+          <circle cx="200" cy="154" r="5" fill="#3dc44a" stroke="white" stroke-width="2"/>
+          <circle cx="310" cy="158" r="5" fill="#3dc44a" stroke="white" stroke-width="2"/>
         </g>
 
-        <!-- Ribosomes (big yellow dots, spread more) -->
+        <!-- Ribosomes — varied sizes, some with tiny faces, connected pairs -->
         <g class="organelle" data-organelle-dec="ribosomes">
-          <circle cx="42" cy="195" r="10" fill="#ffd23f" stroke="white" stroke-width="3"/>
-          <circle cx="72" cy="210" r="10" fill="#ffd23f" stroke="white" stroke-width="3"/>
-          <circle cx="48" cy="235" r="10" fill="#ffd23f" stroke="white" stroke-width="3"/>
-          <circle cx="95" cy="225" r="10" fill="#ffd23f" stroke="white" stroke-width="3"/>
-          <circle cx="115" cy="248" r="10" fill="#ffd23f" stroke="white" stroke-width="3"/>
-          <circle cx="65" cy="258" r="10" fill="#ffd23f" stroke="white" stroke-width="3"/>
-          <circle cx="95" cy="270" r="10" fill="#ffd23f" stroke="white" stroke-width="3"/>
-          <circle cx="32" cy="260" r="10" fill="#ffd23f" stroke="white" stroke-width="3"/>
+          <!-- Connected polyribosome chain (thin line between some) -->
+          <line x1="42" y1="197" x2="72" y2="212" stroke="#e8c41a" stroke-width="2" opacity="0.5"/>
+          <line x1="72" y1="212" x2="48" y2="237" stroke="#e8c41a" stroke-width="2" opacity="0.5"/>
+          <line x1="95" y1="227" x2="115" y2="250" stroke="#e8c41a" stroke-width="2" opacity="0.5"/>
+          <!-- Dots with varied sizes -->
+          <circle cx="42" cy="197" r="11" fill="#ffd23f" stroke="white" stroke-width="3"/>
+          <circle cx="72" cy="212" r="9"  fill="#ffd23f" stroke="white" stroke-width="3"/>
+          <circle cx="48" cy="237" r="10" fill="#ffd23f" stroke="white" stroke-width="3"/>
+          <circle cx="95" cy="227" r="12" fill="#ffd23f" stroke="white" stroke-width="3"/>
+          <circle cx="115" cy="250" r="9" fill="#ffd23f" stroke="white" stroke-width="3"/>
+          <circle cx="65" cy="260" r="10" fill="#ffd23f" stroke="white" stroke-width="3"/>
+          <circle cx="95" cy="272" r="8"  fill="#ffd23f" stroke="white" stroke-width="3"/>
+          <circle cx="32" cy="262" r="9"  fill="#ffd23f" stroke="white" stroke-width="3"/>
+          <!-- Tiny faces on the biggest ones -->
+          <circle cx="90" cy="224" r="1.8" fill="#8a6800"/> <!-- left eye -->
+          <circle cx="100" cy="224" r="1.8" fill="#8a6800"/> <!-- right eye -->
+          <circle cx="39" cy="194" r="1.5" fill="#8a6800"/>
+          <circle cx="45" cy="194" r="1.5" fill="#8a6800"/>
         </g>
 
-        <!-- Golgi (bigger pancake stack, lower) -->
+        <!-- Golgi — terracotta color, face on middle, budding vesicles -->
         <g class="organelle" data-organelle-dec="golgi">
-          <ellipse cx="210" cy="225" rx="48" ry="11" fill="#ffb380" stroke="white" stroke-width="3"/>
-          <ellipse cx="210" cy="243" rx="44" ry="11" fill="#ff9355" stroke="white" stroke-width="3"/>
-          <ellipse cx="210" cy="261" rx="38" ry="11" fill="#ff7733" stroke="white" stroke-width="3"/>
+          <!-- Slight curve to the stack (banana shape) -->
+          <path d="M 162 220 Q 210 212 258 220" stroke="white" stroke-width="3" fill="#e8a060"/>
+          <path d="M 166 238 Q 210 230 254 238" stroke="white" stroke-width="3" fill="#d4854a"/>
+          <path d="M 172 256 Q 210 248 248 256" stroke="white" stroke-width="3" fill="#c06a30"/>
+          <!-- Budding vesicles (little circles pinching off edges) -->
+          <circle cx="260" cy="222" r="5" fill="#e8a060" stroke="white" stroke-width="1.5"/>
+          <circle cx="268" cy="235" r="4" fill="#d4854a" stroke="white" stroke-width="1.5"/>
+          <circle cx="158" cy="240" r="3.5" fill="#d4854a" stroke="white" stroke-width="1.5"/>
+          <!-- Face on the middle pancake -->
+          <circle cx="200" cy="234" r="2" fill="#6a3500"/>
+          <circle cx="210" cy="234" r="2" fill="#6a3500"/>
+          <path d="M 200 240 Q 205 243 210 240" stroke="#6a3500" stroke-width="1.5" fill="none" stroke-linecap="round"/>
         </g>
 
-        <!-- Lysosomes (bigger pink bubbles) -->
+        <!-- Lysosomes — hungry face on big bubble, sparkles -->
         <g class="organelle" data-organelle-dec="lysosomes">
           <circle cx="370" cy="255" r="18" fill="#ff5fa8" stroke="white" stroke-width="3"/>
           <circle cx="395" cy="232" r="13" fill="#ff5fa8" stroke="white" stroke-width="3"/>
           <circle cx="352" cy="240" r="11" fill="#ff5fa8" stroke="white" stroke-width="3"/>
-          <circle cx="366" cy="250" r="4" fill="white"/>
-          <circle cx="393" cy="228" r="3" fill="white"/>
+          <!-- Hungry face on the big bubble (mischievous grin — it digests things!) -->
+          <circle cx="364" cy="250" r="3" fill="#8a1050"/>
+          <circle cx="364" cy="248" r="1" fill="white"/>
+          <circle cx="377" cy="250" r="3" fill="#8a1050"/>
+          <circle cx="377" cy="248" r="1" fill="white"/>
+          <path d="M 362 259 Q 370 266 378 259" stroke="#8a1050" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- Teeth marks (zigzag on the grin — it eats stuff!) -->
+          <path d="M 364 261 L 366 259 L 368 261 L 370 259 L 372 261 L 374 259 L 376 261" stroke="white" stroke-width="1.2" fill="none"/>
+          <!-- Sparkles on smaller bubbles -->
+          <circle cx="392" cy="228" r="3.5" fill="white" opacity="0.7"/>
+          <circle cx="349" cy="236" r="2.5" fill="white" opacity="0.7"/>
         </g>
 
         <!-- HIT ZONES -->
