@@ -259,6 +259,18 @@ body {
   .card-title { font-size: 22px; line-height: 1.1; }
   .card-meta  { font-size: 16px; }
   .card-desc  { font-size: 17px; line-height: 1.25; }
+  .app-title  { font-size: clamp(36px, 6vw, 52px); }
+  .welcome-text { font-size: clamp(16px, 2.2vw, 22px); }
+  .inst { width: 78px; padding: 8px 4px; gap: 3px; border-radius: 16px; }
+  .inst svg { width: 36px; height: 36px; }
+  .inst-name { font-size: 14px; }
+  .instrument-row { gap: 12px; }
+}
+/* Phone only — bigger card text within existing card size */
+@media (max-height: 500px) {
+  .card-title { font-size: 16px; line-height: 1.05; }
+  .card-meta  { font-size: 12px; }
+  .card-desc  { font-size: 12.5px; line-height: 1.18; }
 }
 
 .card[data-card="nucleus"]      { --c-bright: #a78bfa; --c-shadow: #6b56b8; }
