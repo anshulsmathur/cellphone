@@ -256,6 +256,7 @@ body {
 }
 /* Desktop and iPad only — bigger text. Phone (max-height: 500px) keeps original sizes. */
 @media (min-height: 501px) {
+  .main-row { grid-template-columns: 200px 1fr 200px; gap: 22px; }
   .card-title { font-size: 22px; line-height: 1.1; }
   .card-meta  { font-size: 16px; }
   .card-desc  { font-size: 17px; line-height: 1.25; }
