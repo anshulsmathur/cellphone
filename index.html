@@ -282,38 +282,30 @@ body {
 .cyto-dot-2 { animation: dot-drift-2 7s ease-in-out infinite; }
 .cyto-dot-3 { animation: dot-drift-3 8s ease-in-out infinite; }
 
-/* ─── Expression changes on press ─── */
-/* Nucleus: eyes widen + sparkle, mouth opens bigger */
-[data-organelle-dec="nucleus"].playing .nuc-eye-l,
-[data-organelle-dec="nucleus"].playing .nuc-eye-r { r: 7; fill: #5a3a90; }
-[data-organelle-dec="nucleus"].playing .nuc-glint-l,
-[data-organelle-dec="nucleus"].playing .nuc-glint-r { r: 2.8; }
-[data-organelle-dec="nucleus"].playing .nuc-mouth { d: path("M 114 155 Q 125 172 136 155"); stroke-width: 3; }
-
-/* Cytoskeleton: dot eyes hide, ^^ arcs appear */
+/* ─── Expression changes on press (opacity swap — works on all browsers) ─── */
+/* Normal face elements hide, playing face elements show */
+/* Nucleus */
+[data-organelle-dec="nucleus"].playing .nuc-normal { opacity: 0; }
+[data-organelle-dec="nucleus"].playing .nuc-playing { opacity: 1; }
+/* Cytoskeleton */
 [data-organelle-dec="cytoskeleton"].playing .cysk-eye { opacity: 0; }
 [data-organelle-dec="cytoskeleton"].playing .cysk-happy { opacity: 1; }
-
-/* Ribosomes: dot eyes hide, ^^ arcs appear */
+/* Ribosomes */
 [data-organelle-dec="ribosomes"].playing .ribo-eye { opacity: 0; }
 [data-organelle-dec="ribosomes"].playing .ribo-happy { opacity: 1; }
-
-/* Golgi: dot eyes hide, ^^ arcs appear, mouth widens */
-[data-organelle-dec="golgi"].playing .golg-eye { opacity: 0; }
-[data-organelle-dec="golgi"].playing .golg-happy { opacity: 1; }
-[data-organelle-dec="golgi"].playing .golg-mouth { d: path("M 193 250 Q 200 258 207 250"); stroke-width: 2; }
-
-/* Lysosomes: eyes widen, mouth opens bigger (hungrier!) */
-[data-organelle-dec="lysosomes"].playing .lyso-eye { r: 4; }
-[data-organelle-dec="lysosomes"].playing .lyso-mouth { d: path("M 349 258 Q 360 274 371 258"); stroke-width: 2.5; }
-
-/* Mitochondria: bean 1 dot eyes → ^^ happy, bean 2 sleepy arcs → wide awake, mouths widen */
+/* Golgi */
+[data-organelle-dec="golgi"].playing .golg-normal { opacity: 0; }
+[data-organelle-dec="golgi"].playing .golg-playing { opacity: 1; }
+/* Lysosomes */
+[data-organelle-dec="lysosomes"].playing .lyso-normal { opacity: 0; }
+[data-organelle-dec="lysosomes"].playing .lyso-playing { opacity: 1; }
+/* Mitochondria */
 [data-organelle-dec="mitochondria"].playing .mito-eye { opacity: 0; }
 [data-organelle-dec="mitochondria"].playing .mito-happy { opacity: 1; }
 [data-organelle-dec="mitochondria"].playing .mito-sleepy { opacity: 0; }
 [data-organelle-dec="mitochondria"].playing .mito-wake { opacity: 1; }
-[data-organelle-dec="mitochondria"].playing .mito-mouth1 { d: path("M -6 4 Q 1 12 8 4"); stroke-width: 2; }
-[data-organelle-dec="mitochondria"].playing .mito-mouth2 { d: path("M -4 4 Q 2 10 8 4"); stroke-width: 2; }
+[data-organelle-dec="mitochondria"].playing .mito-normal-mouth { opacity: 0; }
+[data-organelle-dec="mitochondria"].playing .mito-playing-mouth { opacity: 1; }
 .hitzone {
   fill: transparent; stroke: transparent;
   cursor: pointer;
@@ -548,11 +540,21 @@ svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-sel
           <!-- Nucleolus (upper-left) -->
           <circle cx="103" cy="118" r="16" fill="#7858c0" opacity="0.45"/>
           <!-- Normal face -->
-          <circle class="nuc-eye-l" cx="108" cy="138" r="5.5" fill="#3a2860"/>
-          <circle class="nuc-glint-l" cx="108" cy="136" r="1.8" fill="white"/>
-          <circle class="nuc-eye-r" cx="142" cy="138" r="5.5" fill="#3a2860"/>
-          <circle class="nuc-glint-r" cx="142" cy="136" r="1.8" fill="white"/>
-          <path class="nuc-mouth" d="M 114 158 Q 125 168 136 158" stroke="#3a2860" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <g class="nuc-normal">
+            <circle cx="108" cy="138" r="5.5" fill="#3a2860"/>
+            <circle cx="108" cy="136" r="1.8" fill="white"/>
+            <circle cx="142" cy="138" r="5.5" fill="#3a2860"/>
+            <circle cx="142" cy="136" r="1.8" fill="white"/>
+            <path d="M 114 158 Q 125 168 136 158" stroke="#3a2860" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          </g>
+          <!-- Playing face (hidden until pressed): bigger eyes, wider grin -->
+          <g class="nuc-playing" opacity="0">
+            <circle cx="108" cy="138" r="7" fill="#5a3a90"/>
+            <circle cx="108" cy="135" r="2.8" fill="white"/>
+            <circle cx="142" cy="138" r="7" fill="#5a3a90"/>
+            <circle cx="142" cy="135" r="2.8" fill="white"/>
+            <path d="M 112 156 Q 125 172 138 156" stroke="#3a2860" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </g>
           <!-- Rosy cheeks -->
           <circle cx="100" cy="150" r="5" fill="#c4a0f0" opacity="0.35"/>
           <circle cx="150" cy="150" r="5" fill="#c4a0f0" opacity="0.35"/>
@@ -571,7 +573,9 @@ svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-sel
             <circle class="mito-eye" cx="-10" cy="-5.5" r="1" fill="white"/>
             <circle class="mito-eye" cx="12" cy="-4" r="3" fill="#5a2900"/>
             <circle class="mito-eye" cx="12" cy="-5.5" r="1" fill="white"/>
-            <path class="mito-mouth1" d="M -4 5 Q 1 9 6 5" stroke="#5a2900" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <path class="mito-normal-mouth" d="M -4 5 Q 1 9 6 5" stroke="#5a2900" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <!-- Playing mouth: bigger grin -->
+            <path class="mito-playing-mouth" d="M -6 4 Q 1 12 8 4" stroke="#5a2900" stroke-width="2" fill="none" stroke-linecap="round" opacity="0"/>
             <!-- Happy ^^ arcs (hidden until playing) -->
             <path class="mito-happy" d="M -13 -4 Q -10 -8 -7 -4" stroke="#5a2900" stroke-width="2" fill="none" stroke-linecap="round" opacity="0"/>
             <path class="mito-happy" d="M 9 -4 Q 12 -8 15 -4" stroke="#5a2900" stroke-width="2" fill="none" stroke-linecap="round" opacity="0"/>
@@ -589,7 +593,9 @@ svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-sel
             <circle class="mito-wake" cx="-8" cy="-5.5" r="0.8" fill="white" opacity="0"/>
             <circle class="mito-wake" cx="12" cy="-4" r="2.5" fill="#5a2900" opacity="0"/>
             <circle class="mito-wake" cx="12" cy="-5.5" r="0.8" fill="white" opacity="0"/>
-            <path class="mito-mouth2" d="M -2 5 Q 2 7 6 5" stroke="#5a2900" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path class="mito-normal-mouth" d="M -2 5 Q 2 7 6 5" stroke="#5a2900" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <!-- Playing mouth: wider smile -->
+            <path class="mito-playing-mouth" d="M -4 4 Q 2 10 8 4" stroke="#5a2900" stroke-width="2" fill="none" stroke-linecap="round" opacity="0"/>
           </g>
         </g>
 
@@ -639,12 +645,18 @@ svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-sel
           <circle cx="274" cy="254" r="4.5" fill="#d4854a" stroke="white" stroke-width="1.5"/>
           <circle cx="275" cy="272" r="4" fill="#c06a30" stroke="white" stroke-width="1.5"/>
           <circle cx="132" cy="262" r="3.5" fill="#c06a30" stroke="white" stroke-width="1.5"/>
-          <!-- Face on second ribbon -->
-          <circle class="golg-eye" cx="195" cy="245" r="2" fill="#6a3500"/>
-          <circle class="golg-eye" cx="205" cy="245" r="2" fill="#6a3500"/>
-          <path class="golg-mouth" d="M 195 251 Q 200 254 205 251" stroke="#6a3500" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <path class="golg-happy" d="M 192 245 Q 195 241 198 245" stroke="#6a3500" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0"/>
-          <path class="golg-happy" d="M 202 245 Q 205 241 208 245" stroke="#6a3500" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0"/>
+          <!-- Normal face -->
+          <g class="golg-normal">
+            <circle cx="195" cy="245" r="2" fill="#6a3500"/>
+            <circle cx="205" cy="245" r="2" fill="#6a3500"/>
+            <path d="M 195 251 Q 200 254 205 251" stroke="#6a3500" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </g>
+          <!-- Playing face: ^^ happy arcs + wider smile -->
+          <g class="golg-playing" opacity="0">
+            <path d="M 192 245 Q 195 241 198 245" stroke="#6a3500" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <path d="M 202 245 Q 205 241 208 245" stroke="#6a3500" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <path d="M 193 250 Q 200 258 207 250" stroke="#6a3500" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </g>
         </g>
 
         <!-- ═══ LYSOSOMES — pink bubble cluster, lower-right ═══ -->
@@ -653,13 +665,24 @@ svg, .inst, .card, .brand, .welcome-text, .app-title, .splash { -webkit-user-sel
           <circle cx="388" cy="238" r="14" fill="#ff5fa8" stroke="white" stroke-width="3"/>
           <circle cx="342" cy="240" r="12" fill="#ff5fa8" stroke="white" stroke-width="3"/>
           <circle cx="375" cy="275" r="11" fill="#ff5fa8" stroke="white" stroke-width="3"/>
-          <!-- Hungry face on big bubble -->
-          <circle class="lyso-eye" cx="354" cy="250" r="3" fill="#8a1050"/>
-          <circle cx="354" cy="248" r="1" fill="white"/>
-          <circle class="lyso-eye" cx="367" cy="250" r="3" fill="#8a1050"/>
-          <circle cx="367" cy="248" r="1" fill="white"/>
-          <path class="lyso-mouth" d="M 352 260 Q 360 268 368 260" stroke="#8a1050" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <path d="M 354 262 L 356 260 L 358 262 L 360 260 L 362 262 L 364 260 L 366 262" stroke="white" stroke-width="1.1" fill="none"/>
+          <!-- Normal hungry face -->
+          <g class="lyso-normal">
+            <circle cx="354" cy="250" r="3" fill="#8a1050"/>
+            <circle cx="354" cy="248" r="1" fill="white"/>
+            <circle cx="367" cy="250" r="3" fill="#8a1050"/>
+            <circle cx="367" cy="248" r="1" fill="white"/>
+            <path d="M 352 260 Q 360 268 368 260" stroke="#8a1050" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M 354 262 L 356 260 L 358 262 L 360 260 L 362 262 L 364 260 L 366 262" stroke="white" stroke-width="1.1" fill="none"/>
+          </g>
+          <!-- Playing face: bigger eyes, mouth WIDE open -->
+          <g class="lyso-playing" opacity="0">
+            <circle cx="354" cy="249" r="4" fill="#8a1050"/>
+            <circle cx="354" cy="247" r="1.5" fill="white"/>
+            <circle cx="367" cy="249" r="4" fill="#8a1050"/>
+            <circle cx="367" cy="247" r="1.5" fill="white"/>
+            <path d="M 349 258 Q 360 274 371 258" stroke="#8a1050" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M 352 261 L 354 258 L 357 261 L 360 258 L 363 261 L 366 258 L 369 261" stroke="white" stroke-width="1.3" fill="none"/>
+          </g>
           <!-- Sparkles -->
           <circle cx="386" cy="234" r="3" fill="white" opacity="0.6"/>
           <circle cx="339" cy="236" r="2" fill="white" opacity="0.6"/>
